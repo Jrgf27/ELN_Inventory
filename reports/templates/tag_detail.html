@@ -1,0 +1,4 @@
+<div hx-target="this" hx-swap="outerHTML">
+    {{ tag }}
+    <button type="button" class="btn btn-danger btn-sm" hx-post="{% url 'deleteTag' reportInfo.id tag.id %}">Delete</button>
+</div>

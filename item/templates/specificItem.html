@@ -1,0 +1,124 @@
+{% extends 'baseItem.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <button  type="submit" name="delete_item" value="True" class="btn btn-success">Delete</button>
+    <button  type="submit" name="edit_item" value="True" class="btn btn-success">Edit</button>
+</form>
+
+<br>
+
+<h1> Stock List for Item </h1>
+<br>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#stockModal">
+  New Stock
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="stockModal" tabindex="-1" aria-labelledby="stockModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="stockModalLabel">New Stock Item</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" hx-post="{% url 'createStockHTMX'%}" hx-target="#stockListing" hx-swap="beforebegin">
+          {% csrf_token %}
+          {{ stockform|crispy }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-success">
+          Save
+        </button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+
+<!-- stockModal -->
+<br>
+<table class="table" style="width: 100%;">
+    <thead>
+      <tr>
+        <th width="10%" scope="col">Batch/Lot Code</th>
+        <th width="10%" scope="col">Quantity</th>
+        <th width="10%" scope="col">Location</th>
+        <th width="50%" scope="col"> </th>
+      </tr>
+    </thead>
+</table>
+<div style="width:100%; overflow:auto; max-height:500px;">
+  <table class="table">
+      <tbody>
+        {% for stock in stockList %}
+            {% include 'stock_details.html'  %}
+        {% endfor %}
+        <tr id="stockListing"></tr>
+      </tbody>
+  </table>
+</div>
+
+<br>
+
+<h1> Supplier Item List </h1>
+<br>
+<!-- Button trigger modal -->
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#supplieritemModal">
+  New Supplier Item
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="supplieritemModal" tabindex="-1" aria-labelledby="supplieritemModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="supplieritemModalLabel">New Supplier Item</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" hx-post="{% url 'createSupplierItemHTMX'%}" hx-target="#supplierItemListing" hx-swap="beforebegin">
+          {% csrf_token %}
+          {{ supplierItemform|crispy }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-success">
+          Save
+        </button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+  <!-- supplierItemModal -->
+<br>
+<table class="table" style="width: 100%;">
+    <thead>
+      <tr>
+        <th width="20%" scope="col">Supplier</th>
+        <th width="20%" scope="col">Supplier Product Code</th>
+        <th width="45%" scope="col">Website</th>
+        <th width="15%" scope="col"> </th>
+      </tr>
+    </thead>
+</table>
+<div style="width:100%; overflow:auto; max-height:500px;">
+    <table class="table">
+        <tbody>
+        {% for supplierItem in supplierItemList %}
+            {% include 'supplieritem_details.html'  %}
+        {% endfor %}
+        <tr id="supplierItemListing"></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

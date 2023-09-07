@@ -1,0 +1,53 @@
+
+<style>
+  
+    figcaption {
+        text-align: center;
+    }
+</style>
+
+{% extends 'baseRiskAssessment.html' %}
+
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    <button  type="submit" name="edit_report" value="True" class="btn btn-primary">Edit</button>
+    <button  type="submit" name="delete_report" value="True" class="btn btn-danger">Delete</button>
+</form>
+
+<h2 >{{riskAssessmentInfo.title}}</h2>
+
+<br>
+
+<div class="card">
+    <div class="card-body">
+        <div class="container">
+            <div class="row align-items-start">
+                <div class="col">
+                    <h4>Attached Files</h4>
+                    <br>
+                    {% for attachment in riskAssessmentAttachments %}
+                        <div class="row align-items-start">
+                            <div class="col">
+                                <p><a href="{{ attachment.file.url }}">
+                                    {{ attachment }}
+                                </a></p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div style="font-size: 14px;">
+    {{riskAssessmentInfo.documentBody |safe}}
+</div>
+
+
+
+{% endblock %}

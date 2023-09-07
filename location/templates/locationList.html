@@ -1,0 +1,57 @@
+{% extends 'baseLocation.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<h1>Location List Page</h1>
+<br>
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#locationModal">
+    New Location
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="locationModalLabel">New Stock Item</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" hx-post="{% url 'createLocationHTMX'%}" hx-target="#locationListing" hx-swap="beforebegin">
+            {% csrf_token %}
+            {{ locationform|crispy }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success">
+            Save
+          </button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+<br>
+<table class="table" style="width: 100%;">
+    <thead>
+      <tr>
+        <th width="15%" scope="col">Name</th>
+        <th width="70%" scope="col">Description</th>
+        <th width="15%" scope="col"></th>
+      </tr>
+    </thead>
+</table>
+<div style="width:100%; overflow:auto; max-height:500px;">
+    <table class="table">
+        <tbody>
+        {% for location in locationlist %}
+            {% include 'location_details.html'  %}
+        {% endfor %}
+        <tr id="locationListing"></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% load crispy_forms_tags %}
+
+<tr hx-target="this" hx-swap="outerHTML">
+    <td width="20%">
+        {{equipment.name}}
+    </td>
+    <td width="45%">
+        {{equipment.description}}
+    </td>
+    <td width="20%">
+        {{equipment.responsibleUser}}
+    </td>
+    <td width="15%">
+        <a class="btn btn-info btn-sm" href="{% url 'specificEquipment' equipment.id %}">
+            View
+        </a>
+        <a class="btn btn-primary btn-sm" href="{% url 'editEquipment' equipment.id %}">
+            Edit
+        </a>
+        <a class="btn btn-danger btn-sm" hx-post="{% url 'deleteEquipmentHTMX' equipment.id %}">
+            Delete
+        </a>
+    </td>
+</tr>

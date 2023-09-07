@@ -1,0 +1,54 @@
+{% extends 'baseHomePage.html' %}
+
+{% block content %}
+
+<h1> Home Page </h1>
+
+<br>
+<br>
+<table class="table" style="width: 100%;">
+    <thead>
+      <tr>
+        <th width="25%" scope="col">Item</th>
+        <th width="25%" scope="col">Minimum Stock</th>
+        <th width="25%" scope="col">Current Stock</th>
+        <th width="25%" scope="col">Category</th>
+      </tr>
+    </thead>
+</table>
+<div style="width:100%; overflow:auto; max-height:500px;">
+    <table class="table">
+        <tbody>
+        {% for item,stockQuantity in item_stockList %}
+            <tr>
+                <td width="25%">
+                    <a href="{% url 'specificItem' item.id %}">
+                        {{item.name}}
+                    </a>
+                </td>
+                <td width="25%">
+                    {{item.minimumStock}}
+                </td>
+                {% if stockQuantity <= item.minimumStock %}
+                    <td width="25%" class="table-danger">
+                {% else %}
+                    <td width="25%">
+                {% endif %}
+                            {{stockQuantity}}
+                    </td>
+                    
+                <td width="25%">
+                    {% for category in categoryList %}
+                        {% if category.id == item.itemCategoryId_id %}
+                            <a href="{% url 'specificCategory' category.id %}">
+                                {{category.name}}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

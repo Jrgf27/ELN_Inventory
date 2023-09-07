@@ -1,0 +1,55 @@
+{% extends 'baseReport.html' %}
+
+
+{% block content %}
+
+<h1>Report List Page</h1>
+<br>
+<br>
+<table class="table" style="width: 100%;">
+    <thead>
+      <tr>
+        <th width="20%" scope="col">Title</th>
+        <th width="20%" scope="col">Owner</th>
+        <th width="10%" scope="col">Date Created</th>
+        <th width="30%" scope="col">Tags</th>
+        <th width="10%" scope="col"> </th>
+      </tr>
+    </thead>
+</table>
+<div style="width:100%; overflow:auto; max-height:500px;">
+    <table class="table">
+        <tbody>
+        {% for tagList, report, editer in reportList %}
+            <tr>
+                <td width="20%">
+                    {{report.title}}
+                </td>
+                <td width="20%">
+                    {{report.owner.first_name}} {{report.owner.last_name}}
+                </td>
+                <td width="10%">
+                    {{report.creationDate}}
+                </td>
+                <td width="30%">
+                    {% for tag in tagList %}
+                        {{tag}};
+                    {%endfor%}
+                </td>
+                <td width="10%">
+                    <a class="btn btn-success btn-sm" href="{% url 'specificReport' report.project.name report.id %}" role="button">
+                        View
+                    </a>
+                    {% if user in editer or user == report.owner%}
+                        <a class="btn btn-primary btn-sm" href="{% url 'editReport' report.project.name report.id %}" role="button">
+                            Edit
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

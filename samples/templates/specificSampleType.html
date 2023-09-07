@@ -1,0 +1,68 @@
+{% extends 'baseSample.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+
+<h1>Sample Type: {{sampleTypeModel.name}}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <button  type="submit" name="delete_sampleType" value="True" class="btn btn-success">Delete</button>
+    <button  type="submit" name="edit_sampleType" value="True" class="btn btn-success">Edit</button>
+</form>
+
+<br>
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#sampleModal">
+    New Sample
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="sampleModal" tabindex="-1" aria-labelledby="sampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="sampleModalLabel">New Sample</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" hx-encoding="multipart/form-data" hx-post="{% url 'createSampleHTMX'%}" hx-target="#sampleListing" hx-swap="beforebegin">
+            {% csrf_token %}
+            {{ sampleform|crispy }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success">
+            Save
+          </button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+<br>
+
+<table class="table" style="width: 100%;">
+    <thead>
+      <tr>
+        <th width="20%" scope="col">Name</th>
+        <th width="20%" scope="col">Quantity</th>
+        <th width="45%" scope="col">Location</th>
+        <th width="15%" scope="col"></th>
+      </tr>
+    </thead>
+</table>
+<div style="width:100%; overflow:auto; max-height:500px;">
+  <table class="table">
+      <tbody>
+        {% for sample in sampleList %}
+            {% include 'sample_details.html'  %}
+        {% endfor %}
+        <tr id="sampleListing"></tr>
+      </tbody>
+  </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'baseItem.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<h1>Item List Page</h1>
+<br>
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#itemModal">
+    New Item
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="itemModalLabel">New Item</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" hx-post="{% url 'createItemHTMX'%}" hx-target="#itemListing" hx-swap="beforebegin">
+            {% csrf_token %}
+            {{ form|crispy }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success">
+            Save
+          </button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+<br>
+<table class="table" style="width: 100%;">
+    <thead>
+      <tr>
+        <th width="20%" scope="col">Name</th>
+        <th width="20%" scope="col">Minimum Stock</th>
+        <th width="20%" scope="col">Current Stock</th>
+        <th width="25%" scope="col">Category</th>
+        <th width="15%" scope="col"></th>
+      </tr>
+    </thead>
+</table>
+<div style="width:100%; overflow:auto; max-height:500px;">
+    <table class="table">
+        <tbody>
+        {% for item,stockQuantity in item_stockList %}
+            {% include 'item_details.html'  %}
+        {% endfor %}
+        <tr id="itemListing"></tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

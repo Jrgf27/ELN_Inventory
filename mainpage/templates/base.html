@@ -1,0 +1,195 @@
+<!doctype html>
+
+{% load static %}
+{% load crispy_forms_tags %}
+
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" 
+        rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" 
+        crossorigin="anonymous">
+
+        <script src="https://unpkg.com/htmx.org@1.5.0"
+            integrity="sha384-oGA+prIp5Vchu6we2YkI51UtVzN9Jpx2Z7PnR1I78PnZlN8LkrCT4lqqqmDkyrvI"
+            crossorigin="anonymous"></script>
+
+        <title>ELN</title>
+
+    </head>
+    <body>
+
+        <!--Main Navigation-->
+        <header>
+            <!-- Sidebar -->
+            <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+                {% if user.is_authenticated %}
+                    {% block sidebarButtons %}
+
+                    {% endblock %}
+                {% endif %}
+            </div>
+            <!-- Sidebar -->
+        
+            <!-- Navbar -->
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand"  href="{% url 'homePage' %}"> 
+                        Home
+                      </a>
+                    <div class="collapse navbar-collapse" id="navbarText">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Inventory
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/item">Items</a></li>
+                                    <li><a class="dropdown-item" href="/stock">Stock</a></li>
+                                    <li><a class="dropdown-item" href="/category">Categories</a></li>
+                                    <li><a class="dropdown-item" href="/supplier">Suppliers</a></li>
+                                    <li><a class="dropdown-item" href="/location">Location</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/sampletype">Samples</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/equipment">Equipment</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Documents
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/SOPs">SOPs</a></li>
+                                    <li><a class="dropdown-item" href="/riskassessments">Risk Assessments</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Projects
+                                </a>
+                                <ul class="dropdown-menu">
+                                    {% for project in projects %}
+
+                                        <li><a class="dropdown-item" href="{% url 'ReportList' project.name %}">{{project.name}}</a></li>
+
+                                    {% endfor %}
+                                    <li id="projectListing"></li>
+                                </ul>
+                            </li>
+                                
+                            <li><a data-bs-toggle="modal" data-bs-target="#projectModal" class="nav-link" type="button"
+                                >Create New Project</a></li>
+                            </li>
+                        </ul>
+                        <ul class="navbar-nav mb-2 mb-lg-0">
+                            {% if user.is_authenticated %}
+                                <span class="navbar-text">
+                                    Welcome {{user.username}}
+                                </span>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/logout">Logout</a>
+                                </li>
+                                
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/login">Login</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/register">Create Account</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/password-reset">Reset Password</a>
+                                </li>
+                            {% endif %}
+                            <li class="nav-item">
+                                <button class="btn btn-secondary" type="button" data-bs-toggle="offcanvas" 
+                                data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
+                                    <span class="navbar-toggler-icon"></span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="projectModalLabel" 
+            aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="projectModalLabel">New Project</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                    <form method="POST" hx-post="{% url 'createProjectHTMX'%}" hx-target="#projectListing" 
+                    hx-swap="beforebegin">
+                        {% csrf_token %}
+                        {{ projectform|crispy }}
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">
+                        Save
+                    </button>
+                    </div>
+                </form>
+                </div>
+                </div>
+            </div>
+
+            <br>
+            <!-- Navbar -->
+        </header>
+        <!--Main Navigation-->
+        
+        <!--Main layout-->
+        <main>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-2">
+                        {% if user.is_authenticated %}
+                            {% block leftSide %}
+                            {% endblock %}
+                        {% endif %}
+                    </div>
+                    <div class="col-8">
+                        {% if user.is_authenticated %}
+                            {% block content %}
+                            {% endblock %}
+                        {% else %}
+                            {% block login_and_registration %}
+                            {% endblock %}
+                        {% endif %}
+                    </div>
+                    <div class="col-2">
+                        {% if user.is_authenticated %}
+                            {% block rightSide %}
+                            {% endblock %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!--Main layout-->
+
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" 
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" 
+        crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js" 
+        integrity="sha384-Rx+T1VzGupg4BHQYs2gCW9It+akI2MM/mndMCy36UVfodzcJcF0GGLxZIzObiEfa" 
+        crossorigin="anonymous"></script>
+        <script>
+        document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        })
+        </script>
+        <script type="text/javascript" async
+        src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+        </script>
+
+    </body>
+</html>

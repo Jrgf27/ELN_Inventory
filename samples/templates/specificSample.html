@@ -1,0 +1,25 @@
+{% extends 'baseSample.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+
+<h1>{{sample.sampleType}} : {{sample.internalId}}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <button  type="submit" name="delete_sample" value="True" class="btn btn-success">Delete</button>
+    <button  type="submit" name="edit_sample" value="True" class="btn btn-success">Edit</button>
+</form>
+<br/>
+
+Linked Reports:
+{% for report in reportsLinked %}
+    <p><a href="{% url 'specificReport' report.project.name report.id %}">
+        {{ report }}
+    </a></p>
+{% endfor %}
+
+
+{% endblock %}

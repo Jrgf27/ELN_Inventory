@@ -1,0 +1,30 @@
+{% load crispy_forms_tags %}
+
+<tr hx-target="this" hx-swap="outerHTML">
+    <td width="20%">
+        <a href="{% url 'specificSample' sample.id %}">
+            {{sample.internalId}}
+        </a>
+    </td>
+    <td width="20%">
+        {{sample.quantity}}
+    </td>
+    <td width="45%">
+        {% if sample.locationId %}
+            <a href="{% url 'specificLocation' sample.locationId.id %}">
+                {{sample.locationId.displayName}}
+            </a> 
+        {%endif %}
+    </td>
+    <td width="15%">
+        <a class="btn btn-info btn-sm" href="{% url 'specificSample' sample.id %}">
+            View
+        </a>
+        <a class="btn btn-primary btn-sm" href="{% url 'editSample' sample.id %}">
+            Edit
+        </a>
+        <a class="btn btn-danger btn-sm" hx-post="{% url 'deleteSampleHTMX' sample.id %}">
+            Delete
+        </a>
+    </td>
+</tr>

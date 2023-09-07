@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block login_and_registration %}
+    <form method="POST" class="form-group">
+        {% csrf_token %}
+        {{form|crispy}}
+        <p> Forgotten <a href="/password-reset">password?</a></p>
+        <p> Create an account <a href="/register">here</a></p>
+        <button type="submit" name="register" value="True" class="btn btn-success">Login</button>
+    </form>
+{% endblock %}

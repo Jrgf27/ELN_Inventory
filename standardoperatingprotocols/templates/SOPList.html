@@ -1,0 +1,49 @@
+{% extends 'baseSOP.html' %}
+
+
+{% block content %}
+
+<h1>SOP List Page</h1>
+<br>
+<br>
+<table class="table" style="width: 100%;">
+    <thead>
+      <tr>
+        <th width="30%" scope="col">Title</th>
+        <th width="30%" scope="col">Owner</th>
+        <th width="30%" scope="col">Date Created</th>
+        <th width="10%" scope="col"> </th>
+      </tr>
+    </thead>
+</table>
+<div style="width:100%; overflow:auto; max-height:500px;">
+    <table class="table">
+        <tbody>
+        {% for SOP in SOPList %}
+            <tr>
+                <td width="30%">
+                    {{SOP.title}}
+                </td>
+                <td width="30%">
+                    {{SOP.owner.first_name}} {{SOP.owner.last_name}}
+                </td>
+                <td width="30%">
+                    {{SOP.creationDate}}
+                </td>
+                <td width="10%">
+                    <a class="btn btn-success btn-sm" href="{% url 'specificSOP' SOP.id %}" 
+                    role="button">
+                        View
+                    </a>
+                    <a class="btn btn-primary btn-sm" href="{% url 'editSOP' SOP.id %}" 
+                    role="button">
+                        Edit
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

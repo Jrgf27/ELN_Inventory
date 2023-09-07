@@ -1,0 +1,58 @@
+<style>
+    .django-ckeditor-widget{
+        width: 100%;
+      }
+</style>
+
+{% extends 'baseRiskAssessment.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.media }}
+    <div class="fieldWrapper">
+        {{ form.title |as_crispy_field}}
+    </div>
+    <br>
+    <div class="card">
+        <div class="card-body">
+            <div class="container">
+                <div class="row align-items-start">
+                    <div class="col">
+                        <h4>Attached Files</h4>
+                        <br>
+                        <button type="button" hx-get="{% url 'create-attachment-form_riskAssessment' riskAssessmentInfo.id %}" 
+                        hx-target="#fileattachmentforms" hx-swap="beforeend" class="btn btn-success">
+                            Add
+                        </button>
+                        {% for attachedFile in riskAssessmentAttachments %}
+                            <div class="row align-items-start">
+                                <div class="col">
+                                    {% include 'attachedFiles_detail.html'  %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div id="fileattachmentforms"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="fieldWrapper">
+        {{ form.documentBody}}
+    </div>
+    <br>
+    <button type="submit" name="save" value="True" class="btn btn-success">Save</button>
+    <button type="submit" name="exit" value="True" class="btn btn-danger">Exit</button>
+     
+</form>
+
+
+
+{% endblock %}

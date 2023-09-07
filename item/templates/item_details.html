@@ -1,0 +1,32 @@
+{% load crispy_forms_tags %}
+
+<tr hx-target="this" hx-swap="outerHTML">
+
+    <td width="20%">
+        {{item.name}}
+    </td>
+    <td width="20%">
+        {{item.minimumStock}}
+    </td>
+    <td width="20%">
+        {{stockQuantity}}
+    </td>
+
+    <td width="25%">
+        <a href="{% url 'specificCategory' item.itemCategoryId.id %}">
+            {{item.itemCategoryId}}
+        </a>
+    </td>
+    <td width="15%">
+        <a class="btn btn-info btn-sm" href="{% url 'specificItem' item.id %}">
+            View
+        </a>
+        <a class="btn btn-primary btn-sm" href="{% url 'editItem' item.id %}">
+            Edit
+        </a>
+        <a class="btn btn-danger btn-sm" hx-post="{% url 'deleteItemHTMX' item.id %}">
+            Delete
+        </a>
+    </td>
+
+</tr>
