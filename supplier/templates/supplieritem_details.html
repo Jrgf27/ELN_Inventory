@@ -1,0 +1,29 @@
+
+<tr hx-target="this" hx-swap="outerHTML">
+    <td width="20%">
+        <a href="{% url 'specificSupplier' supplierItem.supplierId.id %}">
+            {{supplierItem.supplierId}}
+        </a>
+    </td>
+    <td width="20%">
+        <a href="{% url 'specificSupplierItem' supplierItem.id %}">
+            {{supplierItem.supplierProductCode}}
+        </a>
+    </td>
+    <td width="45%">
+        <a href={{supplierItem.website}}>
+            {{supplierItem.website}}
+        </a>
+    </td>
+    <td width="15%">
+        <a class="btn btn-info btn-sm" href="{% url 'specificSupplierItem' supplierItem.id %}">
+            View
+        </a>
+        <a class="btn btn-primary btn-sm" href="{% url 'editSupplierItem' supplierItem.id %}">
+            Edit
+        </a>
+        <a class="btn btn-danger btn-sm" hx-post="{% url 'deleteSupplierItemHTMX' supplierItem.id %}">
+            Delete
+        </a>
+    </td>
+</tr>

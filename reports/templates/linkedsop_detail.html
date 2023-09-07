@@ -1,0 +1,6 @@
+<div hx-target="this" hx-swap="outerHTML">
+    <a href="{% url 'specificSOP' linkedSOP.id %}">
+    <p>{{linkedSOP}}</p></a>
+    <button type="button" class="btn btn-danger btn-sm" 
+    hx-post="{% url 'deleteLinkedSOP' reportInfo.id linkedSOP.id %}">Delete</button> </p>
+</div>

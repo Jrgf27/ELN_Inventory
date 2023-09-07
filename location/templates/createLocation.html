@@ -1,0 +1,14 @@
+{% extends 'baseLocation.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" name="save_add" value="True" class="btn btn-success">Add More</button>
+    <button type="submit" name="save_exit" value="True" class="btn btn-success">Add One</button>
+  </form>
+  
+{% endblock %}

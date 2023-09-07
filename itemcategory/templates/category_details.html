@@ -1,0 +1,21 @@
+{% load crispy_forms_tags %}
+
+<tr hx-target="this" hx-swap="outerHTML">
+    <td width="20%">
+        {{category.name}}
+    </td>
+    <td width="65%">
+        {{category.description}}
+    </td>
+    <td width="15%">
+        <a class="btn btn-info btn-sm" href="{% url 'specificCategory' category.id %}">
+            View
+        </a>
+        <a class="btn btn-primary btn-sm" href="{% url 'editCategory' category.id %}">
+            Edit
+        </a>
+        <a class="btn btn-danger btn-sm" hx-post="{% url 'deleteCategoryHTMX' category.id %}">
+            Delete
+        </a>
+    </td>
+</tr>
