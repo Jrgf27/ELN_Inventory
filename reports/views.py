@@ -4,6 +4,7 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.core.signing import TimestampSigner
+from django.core.paginator import Paginator
 
 from .forms import *
 from .models import *
@@ -15,13 +16,15 @@ from projects.forms import CreateNewProject
 @login_required
 def ReportList(response, projectname):
     reportListObjects = Reports.objects.filter(isEnabled=True).filter(project=Projects.objects.get(name=projectname))
-    tagList = [list(report.reportTags.all()) for report in reportListObjects]
-    editers = [list(report.canEditUsers.all()) for report in reportListObjects]
+
+    paginator = Paginator(reportListObjects,1)
+    page_number = response.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
     projects=Projects.objects.filter(isEnabled=True)
     projectform = CreateNewProject()
 
-    return render(response, 'reportList.html', {'reportList': zip(tagList, reportListObjects,editers),
+    return render(response, 'reportList.html', {'page_obj' : page_obj,
                                                 'projects' : projects,
                                                 'selectedProject': projectname,
                                                 'projectform' : projectform})
