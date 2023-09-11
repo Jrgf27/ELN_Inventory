@@ -71,12 +71,12 @@
   <ul class="pagination">
       {%if page_obj_stock.has_previous%}
           <li class="page-item">
-              <a class="page-link" href="?page_stock=1" aria-label="First">
+              <a class="page-link" href="?page=1,{{page_obj_supplierItem.number}}" aria-label="First">
               <span aria-hidden="true">&laquo;</span>
               </a>
           </li>
           <li class="page-item">
-              <a class="page-link" href="?page_stock={{page_obj_stock.previous_page_number}}" aria-label="Previous">
+              <a class="page-link" href="?page={{page_obj_stock.previous_page_number}},{{page_obj_supplierItem.number}}" aria-label="Previous">
               <span aria-hidden="true">Previous</span>
               </a>
           </li>
@@ -91,20 +91,20 @@
       
       {% for page in page_obj_stock.paginator.page_range %}
           {% if page == page_obj_stock.number %}
-              <li class="page-item active"><a class="page-link" href="?page_stock={{page}}">{{page}}</a></li>
+              <li class="page-item active"><a class="page-link" href="?page={{page}},{{page_obj_supplierItem.number}}">{{page}}</a></li>
           {% else %}
-              <li class="page-item"><a class="page-link" href="?page_stock={{page}}">{{page}}</a></li>
+              <li class="page-item"><a class="page-link" href="?page={{page}},{{page_obj_supplierItem.number}}">{{page}}</a></li>
           {% endif %}
       {% endfor %}
 
       {%if page_obj_stock.has_next%}
           <li class="page-item">
-              <a class="page-link" href="?page_stock={{page_obj_stock.next_page_number}}" aria-label="Next">
+              <a class="page-link" href="?page={{page_obj_stock.next_page_number}},{{page_obj_supplierItem.number}}" aria-label="Next">
               <span aria-hidden="true">Next</span>
               </a>
           </li>
           <li class="page-item">
-              <a class="page-link" href="?page_stock={{page_obj_stock.paginator.num_pages}}" aria-label="Last">
+              <a class="page-link" href="?page={{page_obj_stock.paginator.num_pages}},{{page_obj_supplierItem.number}}" aria-label="Last">
               <span aria-hidden="true">&raquo;</span>
               </a>
           </li>
@@ -179,12 +179,12 @@
   <ul class="pagination">
       {%if page_obj_supplierItem.has_previous%}
           <li class="page-item">
-              <a class="page-link" href="?page_supplierItem=1" aria-label="First">
+              <a class="page-link" href="?page={{page_obj_stock.number}},1" aria-label="First">
               <span aria-hidden="true">&laquo;</span>
               </a>
           </li>
           <li class="page-item">
-              <a class="page-link" href="?page_supplierItem={{page_obj_supplierItem.previous_page_number}}" aria-label="Previous">
+              <a class="page-link" href="?page={{page_obj_stock.number}},{{page_obj_supplierItem.previous_page_number}}" aria-label="Previous">
               <span aria-hidden="true">Previous</span>
               </a>
           </li>
@@ -199,20 +199,20 @@
       
       {% for page in page_obj_supplierItem.paginator.page_range %}
           {% if page == page_obj_supplierItem.number %}
-              <li class="page-item active"><a class="page-link" href="?page_supplierItem={{page}}">{{page}}</a></li>
+              <li class="page-item active"><a class="page-link" href="?page={{page_obj_stock.number}},{{page}}">{{page}}</a></li>
           {% else %}
-              <li class="page-item"><a class="page-link" href="?page_supplierItem={{page}}">{{page}}</a></li>
+              <li class="page-item"><a class="page-link" href="?page={{page_obj_stock.number}},{{page}}">{{page}}</a></li>
           {% endif %}
       {% endfor %}
 
       {%if page_obj_supplierItem.has_next%}
           <li class="page-item">
-              <a class="page-link" href="?page_supplierItem={{page_obj_supplierItem.next_page_number}}" aria-label="Next">
+              <a class="page-link" href="?page={{page_obj_stock.number}},{{page_obj_supplierItem.next_page_number}}" aria-label="Next">
               <span aria-hidden="true">Next</span>
               </a>
           </li>
           <li class="page-item">
-              <a class="page-link" href="?page_supplierItem={{page_obj_supplierItem.paginator.num_pages}}" aria-label="Last">
+              <a class="page-link" href="?page={{page_obj_stock.number}},{{page_obj_supplierItem.paginator.num_pages}}" aria-label="Last">
               <span aria-hidden="true">&raquo;</span>
               </a>
           </li>
