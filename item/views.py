@@ -10,6 +10,9 @@ from stock.models import Stock
 from stock.forms import RemoveStockQuantity, CreateNewItemStock, AddStockQuantity
 from supplier.models import SuppliersItems
 from supplier.forms import CreateNewItemSupplier
+from projects.models import Projects
+from projects.forms import CreateNewProject
+
 
 from .forms import *
 
@@ -29,9 +32,14 @@ def ItemList(response):
                 stock_quantity += j.quantity
         item_stockList.append(stock_quantity)
 
+    projects=Projects.objects.filter(isEnabled=True)
+    projectform = CreateNewProject()
+
     return render(response, 'itemList.html', {'item_stockList': zip(itemListObjects,
                                                                     item_stockList),
-                                              'form': form})
+                                              'form': form,
+                                              'projects' : projects,
+                                                'projectform' : projectform})
 
 @login_required
 def SpecificItem(response, id):
@@ -70,6 +78,9 @@ def SpecificItem(response, id):
         removeQuantityStockform = RemoveStockQuantity()
         addQuantityStockform = AddStockQuantity()
 
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
+
         return render(response, 'specificItem.html', {'itemInfo': itemInfo,
                                                       'stockList': stockListObjects,
                                                       'supplierItemList': supplierItemObjects,
@@ -77,7 +88,9 @@ def SpecificItem(response, id):
                                                       'supplierItemform': supplierItemform,
                                                       'stockform': stockform,
                                                       'removeQuantityStockform': removeQuantityStockform,
-                                                      'addQuantityStockform': addQuantityStockform})
+                                                      'addQuantityStockform': addQuantityStockform,
+                                                      'projects' : projects,
+                                                        'projectform' : projectform})
 
 @login_required
 def CreateItem(response):
@@ -107,8 +120,12 @@ def CreateItem(response):
             return HttpResponseRedirect("/item/create")
 
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         form = CreateNewItem()
-        return render(response, 'createItem.html', {'form': form})
+        return render(response, 'createItem.html', {'form': form,
+                                                    'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def EditItem(response, id):
@@ -151,7 +168,12 @@ def EditItem(response, id):
                                       'minimumStock': itemObject.minimumStock,
                                       'itemCategoryId': itemObject.itemCategoryId.id})
         
-        return render(response, 'editItem.html', {'form': form})
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
+
+        return render(response, 'editItem.html', {'form': form,
+                                                  'projects' : projects,
+                                                    'projectform' : projectform})
 
 def ItemVersioning(action=None, itemModel=None, user=None):
     timestamper = TimestampSigner()

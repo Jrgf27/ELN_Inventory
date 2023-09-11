@@ -4,15 +4,22 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.core.signing import TimestampSigner
 from django.contrib.auth.decorators import login_required
+
 from .forms import *
 from .models import *
+from projects.models import Projects
+from projects.forms import CreateNewProject
+
 
 # Create your views here.
 @login_required
 def SOPList(response):
-    
+    projects=Projects.objects.filter(isEnabled=True)
+    projectform = CreateNewProject()
     SOPListObjects = SOP.objects.filter(isEnabled=True)
-    return render(response, 'SOPList.html', {'SOPList': SOPListObjects})
+    return render(response, 'SOPList.html', {'SOPList': SOPListObjects,
+                                             'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def SpecificSOP(response, id):
@@ -32,9 +39,13 @@ def SpecificSOP(response, id):
         if response.POST.get('edit_report'):
             return HttpResponseRedirect(f"/SOPs/edit/{id}")
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         SOPAttachmentsList = SOPAttachments.objects.filter(SOP = SOPModel)
         return render(response, 'specificSOP.html', {'SOPModel': SOPModel,
-                                                    'SOPAttachments': SOPAttachmentsList,})
+                                                    'SOPAttachments': SOPAttachmentsList,
+                                                    'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def CreateSOP(response):
@@ -98,9 +109,9 @@ def EditSOP(response,id):
             return render(response, 'attachedFiles_form.html', {'form':form,
                                                                 'reportId':id})
         
-
     else:  
-
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         SOPAttachmentsList = SOPAttachments.objects.filter(SOP = SOPModel)
 
         form = CreateNewSOP(initial={'title':SOPModel.title,
@@ -110,7 +121,9 @@ def EditSOP(response,id):
                         {'form':form,
                         'SOPModel': SOPModel,
                         'SOPAttachments': SOPAttachmentsList,
-                        'id':id})
+                        'id':id,
+                        'projects' : projects,
+                        'projectform' : projectform})
 
 def SOPVersioning(action = None, SOPModel = None, user=None):
     timestamper = TimestampSigner()

@@ -4,15 +4,18 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.core.signing import TimestampSigner
+
 from .models import *
 from reports.models import Reports
-
+from projects.models import Projects
+from projects.forms import CreateNewProject
 
 
 from .forms import *
 @login_required
 def stockList(response):
-
+    projects=Projects.objects.filter(isEnabled=True)
+    projectform = CreateNewProject()
     stockListObjects = Stock.objects.filter(isEnabled=True)
     stockform = CreateNewItemStock(parentItem = 0)
     removeQuantityStockform = RemoveStockQuantity()
@@ -20,7 +23,9 @@ def stockList(response):
     return render(response, 'stockList.html', {'stockList':stockListObjects,
                                                 'stockform':stockform,
                                                 'removeQuantityStockform':removeQuantityStockform,
-                                                'addQuantityStockform':addQuantityStockform})
+                                                'addQuantityStockform':addQuantityStockform,
+                                                'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def SpecificStock(response,id):
@@ -43,10 +48,14 @@ def SpecificStock(response,id):
             return HttpResponseRedirect(f"/stock/edit/{id}")
         
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         linkedReports = Reports.objects.filter(linkedReagents=stockInfo)
         return render(response, 'specificStock.html', {'stockInfo':stockInfo, 
                                                       'id':id,
-                                                      'linkedReports':linkedReports})
+                                                      'linkedReports':linkedReports,
+                                                      'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def CreateStock(response):
@@ -75,8 +84,12 @@ def CreateStock(response):
             return HttpResponseRedirect("/stock/create")
 
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         form = CreateNewItemStock(parentItem=0)
-        return render(response, 'createStock.html', {'form':form})
+        return render(response, 'createStock.html', {'form':form,
+                                                     'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def EditStock(response,id):
@@ -113,12 +126,16 @@ def EditStock(response,id):
                 return HttpResponseRedirect("/stock")
 
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         form = CreateNewItemStock(parentItem=0, initial={'batchCode' : stockModel.batchCode,
                                     'quantity' : stockModel.quantity,
                                     'locationId' : stockModel.locationId,
                                     'itemId' : stockModel.itemId})
         
-        return render(response, 'editStock.html', {'form':form})
+        return render(response, 'editStock.html', {'form':form,
+                                                   'projects' : projects,
+                                                    'projectform' : projectform})
     
 
 def CreateStockHTMX(response):

@@ -7,14 +7,21 @@ from django.core.signing import TimestampSigner
 
 from .models import *
 from .forms import CreateNewSupplier, CreateNewSupplierItem
+from projects.models import Projects
+from projects.forms import CreateNewProject
+
 
 @login_required
 def SupplierList(response):
 
     supplierListObjects = Suppliers.objects.filter(isEnabled=True)
     form = CreateNewSupplier()
+    projects=Projects.objects.filter(isEnabled=True)
+    projectform = CreateNewProject()
     return render(response, 'supplierList.html', {'supplierList':supplierListObjects,
-                                                  'form':form})
+                                                  'form':form,
+                                                  'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def SpecificSupplier(response, id):
@@ -55,10 +62,14 @@ def SpecificSupplier(response, id):
                 return HttpResponseRedirect(f"/supplier/{id}")
         
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         return render(response, 'specificSupplier.html', {  'supplierInfo':supplierInfo,
                                                             'supplierItemList': supplierItemInfo,
                                                             'id':id,
-                                                            'supplierItemform':supplierItemform})
+                                                            'supplierItemform':supplierItemform,
+                                                            'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def CreateSupplier(response):
@@ -90,10 +101,14 @@ def CreateSupplier(response):
             return HttpResponseRedirect("/supplier/create")
 
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         form = CreateNewSupplier()
 
 
-    return render(response, 'createSupplier.html', {'form':form})
+        return render(response, 'createSupplier.html', {'form':form,
+                                                        'projects' : projects,
+                                                        'projectform' : projectform})
 
 @login_required
 def EditSupplier(response,id):
@@ -132,7 +147,8 @@ def EditSupplier(response,id):
                 return HttpResponseRedirect("/supplier")
 
     else:
-        
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         form = CreateNewSupplier(initial={'name' : supplierInfo.name,
                                         'description' : supplierInfo.description,
                                         'website' : supplierInfo.website,
@@ -140,7 +156,9 @@ def EditSupplier(response,id):
                                         'emailAddress' : supplierInfo.emailAddress,
                                         'contactName' : supplierInfo.contactName})
         
-        return render(response, 'editSupplier.html', {'form':form})
+        return render(response, 'editSupplier.html', {'form':form,
+                                                      'projects' : projects,
+                                                    'projectform' : projectform})
 
 def SupplierVersioning(action = None, supplierModel = None, user=None):
     timestamper = TimestampSigner()

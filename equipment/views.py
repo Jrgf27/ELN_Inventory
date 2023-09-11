@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 
 from .models import *
 from .forms import CreateNewEquipment
+from projects.models import Projects
+from projects.forms import CreateNewProject
 
 # Create your views here.
 @login_required
@@ -14,8 +16,14 @@ def EquipmentList(response):
 
     equipmentListObjects = Equipment.objects.filter(isEnabled=True)
     equipmentForm=CreateNewEquipment()
+
+    projects=Projects.objects.filter(isEnabled=True)
+    projectform = CreateNewProject()
+
     return render(response, 'equipmentList.html', {'equipmentList':equipmentListObjects,
-                                                  'form':equipmentForm})
+                                                    'form':equipmentForm,
+                                                    'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def SpecificEquipment(response, id):
@@ -36,9 +44,14 @@ def SpecificEquipment(response, id):
             return HttpResponseRedirect(f"/equipment/edit/{id}")
         
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
+
         return render(response, 'specificEquipment.html', {
             'equipmentModel':equipmentModel, 
-            'id':id
+            'id':id,
+            'projects' : projects,
+            'projectform' : projectform
             })
 
 @login_required
@@ -68,8 +81,12 @@ def CreateEquipment(response):
     else:
         form = CreateNewEquipment()
 
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
 
-        return render(response, 'createEquipment.html', {'form':form})
+        return render(response, 'createEquipment.html', {'form':form,
+                                                         'projects' : projects,
+                                                        'projectform' : projectform})
 
 @login_required
 def EditEquipment(response,id):
@@ -101,6 +118,9 @@ def EditEquipment(response,id):
                 return HttpResponseRedirect(f"/equipment/{id}")
 
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
+
         form = CreateNewEquipment(initial={  'name' : equipmentModel.name,
                                             'description' : equipmentModel.description,
                                             'origin' : equipmentModel.origin,
@@ -109,7 +129,9 @@ def EditEquipment(response,id):
                                             'relatedSOP' : equipmentModel.relatedSOP,
                                             'relatedRiskAssessment' : equipmentModel.relatedRiskAssessment,})
         
-        return render(response, 'editEquipment.html', {'form':form})
+        return render(response, 'editEquipment.html', {'form':form,
+                                                       'projects' : projects,
+                                                        'projectform' : projectform})
 
 def EquipmentVersioning(action = None, equipmentModel = None, user=None):
     timestamper = TimestampSigner()
