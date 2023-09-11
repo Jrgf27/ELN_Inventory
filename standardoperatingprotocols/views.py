@@ -4,6 +4,7 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.core.signing import TimestampSigner
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 from .forms import *
 from .models import *
@@ -16,10 +17,16 @@ from projects.forms import CreateNewProject
 def SOPList(response):
     projects=Projects.objects.filter(isEnabled=True)
     projectform = CreateNewProject()
-    SOPListObjects = SOP.objects.filter(isEnabled=True)
-    return render(response, 'SOPList.html', {'SOPList': SOPListObjects,
-                                             'projects' : projects,
-                                                    'projectform' : projectform})
+
+    SOPListObjects = SOP.objects.filter(isEnabled=True).order_by('-creationDate')
+
+    paginator = Paginator(SOPListObjects,20)
+    page_number = response.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(response, 'SOPList.html', {   'page_obj' : page_obj,
+                                                'projects' : projects,
+                                                'projectform' : projectform})
 
 @login_required
 def SpecificSOP(response, id):

@@ -4,23 +4,31 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.core.signing import TimestampSigner
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 from .models import *
 from .forms import CreateNewEquipment
 from projects.models import Projects
 from projects.forms import CreateNewProject
 
+
+
 # Create your views here.
 @login_required
 def EquipmentList(response):
 
-    equipmentListObjects = Equipment.objects.filter(isEnabled=True)
+    equipmentListObjects = Equipment.objects.filter(isEnabled=True).order_by('name')
+
+    paginator = Paginator(equipmentListObjects,20)
+    page_number = response.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     equipmentForm=CreateNewEquipment()
 
     projects=Projects.objects.filter(isEnabled=True)
     projectform = CreateNewProject()
 
-    return render(response, 'equipmentList.html', {'equipmentList':equipmentListObjects,
+    return render(response, 'equipmentList.html', {'page_obj' : page_obj,
                                                     'form':equipmentForm,
                                                     'projects' : projects,
                                                     'projectform' : projectform})

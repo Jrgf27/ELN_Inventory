@@ -4,6 +4,7 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.core.signing import TimestampSigner
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 from .models import *
 from .forms import CreateNewLocation
@@ -17,10 +18,15 @@ from projects.forms import CreateNewProject
 @login_required
 def LocationList(response):
     locationlistobjects = Locations.objects.filter(parentLocation=None).filter(isEnabled=True)
+
+    paginator = Paginator(locationlistobjects,20)
+    page_number = response.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     locationform=CreateNewLocation()
     projects=Projects.objects.filter(isEnabled=True)
     projectform = CreateNewProject()
-    return render(response, 'locationList.html', {'locationlist':locationlistobjects,
+    return render(response, 'locationList.html', {'page_obj':page_obj,
                                                   'locationform':locationform,
                                                   'projects' : projects,
                                                     'projectform' : projectform})
@@ -46,14 +52,25 @@ def SpecificLocation(response, id):
     else:
         projects=Projects.objects.filter(isEnabled=True)
         projectform = CreateNewProject()
+
         locationlistobjects = Locations.objects.filter(parentLocation = locationObject).filter(isEnabled=True)
+
+        paginator_location = Paginator(locationlistobjects,20)
+        page_number_location = response.GET.get("page_location")
+        page_obj_location = paginator_location.get_page(page_number_location)
+
         stockListObjects = Stock.objects.filter(isEnabled=True).filter(locationId=locationObject)
+
+        paginator_stock = Paginator(stockListObjects,20)
+        page_number_stock = response.GET.get("page_stock")
+        page_obj_stock = paginator_stock.get_page(page_number_stock)
+
         stockform = CreateNewItemStock(initial={'locationId' : locationObject}, parentItem = 0)
         locationform=CreateNewLocation(initial={'parentID' : locationObject})
         removeQuantityStockform = RemoveStockQuantity()
         addQuantityStockform = AddStockQuantity()
-        return render(response, 'specificLocation.html', {'locationlist':locationlistobjects,
-                                                          'stockList':stockListObjects, 
+        return render(response, 'specificLocation.html', {'page_obj_location':page_obj_location,
+                                                          'page_obj_stock':page_obj_stock, 
                                                           'locationObject':locationObject,
                                                           'stockform':stockform,
                                                           'removeQuantityStockform':removeQuantityStockform,
