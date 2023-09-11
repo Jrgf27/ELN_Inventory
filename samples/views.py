@@ -8,14 +8,20 @@ from .forms import *
 from .models import *
 
 from reports.models import Reports
+from projects.models import Projects
+from projects.forms import CreateNewProject
 
 # Create your views here.
 @login_required
 def sampleTypeList(response):
     sampletypeform = CreateNewSampleType()
     sampleTypeList = SampleType.objects.filter(isEnabled=True)
+    projects=Projects.objects.filter(isEnabled=True)
+    projectform = CreateNewProject()
     return render(response, 'sampleTypeList.html', {'sampleTypeList':sampleTypeList,
-                                                  'sampletypeform':sampletypeform})
+                                                  'sampletypeform':sampletypeform,
+                                                  'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def CreateSampleType(response):
@@ -39,10 +45,14 @@ def CreateSampleType(response):
             return HttpResponseRedirect("/sampletype/create")
 
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         form = CreateNewSampleType()
 
 
-        return render(response, 'createSampleType.html', {'form':form})
+        return render(response, 'createSampleType.html', {'form':form,
+                                                          'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def SpecificSampleType(response, id):
@@ -65,13 +75,17 @@ def SpecificSampleType(response, id):
             return HttpResponseRedirect(f"/sampletype/edit/{id}")
         
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         sampleList = Sample.objects.filter(isEnabled=True).filter(sampleType = sampleTypeModel)
         sampleform = CreateNewSample(initial={'sampleType' : sampleTypeModel})
 
         return render(response, 'specificSampleType.html', {'sampleTypeModel':sampleTypeModel, 
                                                             'id':id,
                                                             'sampleform':sampleform,
-                                                            'sampleList':sampleList,})
+                                                            'sampleList':sampleList,
+                                                            'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def EditSampleType(response,id):
@@ -102,10 +116,14 @@ def EditSampleType(response,id):
                 return HttpResponseRedirect("/sampletype")
 
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         form = CreateNewSampleType(initial={  'name' : sampleTypeModel.name,
                                             'description' : sampleTypeModel.description})
         
-        return render(response, 'editSampleType.html', {'form':form})
+        return render(response, 'editSampleType.html', {'form':form,
+                                                        'projects' : projects,
+                                                    'projectform' : projectform})
     
 def SampleTypeVersioning(action = None, sampleTypeModel = None, user=None):
     timestamper = TimestampSigner()

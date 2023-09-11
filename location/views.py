@@ -10,14 +10,20 @@ from .forms import CreateNewLocation
 
 from stock.models import Stock
 from stock.forms import RemoveStockQuantity, AddStockQuantity, CreateNewItemStock
+from projects.models import Projects
+from projects.forms import CreateNewProject
 
 
 @login_required
 def LocationList(response):
     locationlistobjects = Locations.objects.filter(parentLocation=None).filter(isEnabled=True)
     locationform=CreateNewLocation()
+    projects=Projects.objects.filter(isEnabled=True)
+    projectform = CreateNewProject()
     return render(response, 'locationList.html', {'locationlist':locationlistobjects,
-                                                  'locationform':locationform})
+                                                  'locationform':locationform,
+                                                  'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def SpecificLocation(response, id):
@@ -38,6 +44,8 @@ def SpecificLocation(response, id):
             return HttpResponseRedirect(f"/location/edit/{id}")
         
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         locationlistobjects = Locations.objects.filter(parentLocation = locationObject).filter(isEnabled=True)
         stockListObjects = Stock.objects.filter(isEnabled=True).filter(locationId=locationObject)
         stockform = CreateNewItemStock(initial={'locationId' : locationObject}, parentItem = 0)
@@ -50,7 +58,9 @@ def SpecificLocation(response, id):
                                                           'stockform':stockform,
                                                           'removeQuantityStockform':removeQuantityStockform,
                                                           'addQuantityStockform':addQuantityStockform,
-                                                          'locationform':locationform})
+                                                          'locationform':locationform,
+                                                          'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def CreateLocation(response):
@@ -80,8 +90,12 @@ def CreateLocation(response):
             return HttpResponseRedirect("/location/create")
 
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         form = CreateNewLocation()
-        return render(response, 'createLocation.html', {'form':form})
+        return render(response, 'createLocation.html', {'form':form,
+                                                        'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def EditLocation(response,id):
@@ -111,12 +125,15 @@ def EditLocation(response,id):
                 return HttpResponseRedirect("/location")
 
     else:
-
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         form = CreateNewLocation(initial={'name' : locationModel.name,
                                         'description' : locationModel.description,
                                         'parentID' : locationModel.parentLocation})
         
-        return render(response, 'editLocation.html', {'form':form})
+        return render(response, 'editLocation.html', {'form':form,
+                                                      'projects' : projects,
+                                                    'projectform' : projectform})
 
 def LocationVersioning(action = None, locationModel = None, user=None):
     timestamper = TimestampSigner()

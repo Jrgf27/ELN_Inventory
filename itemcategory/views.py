@@ -9,14 +9,23 @@ from django.contrib.auth.decorators import login_required
 from .models import *
 from .forms import CreateNewCategory
 
+from projects.models import Projects
+from projects.forms import CreateNewProject
+
 # Create your views here.
 @login_required
 def CategoryList(response):
 
     categoryListObjects = ItemCategory.objects.filter(isEnabled=True)
     categoryForm=CreateNewCategory()
+
+    projects=Projects.objects.filter(isEnabled=True)
+    projectform = CreateNewProject()
+
     return render(response, 'categoryList.html', {'categoryList':categoryListObjects,
-                                                  'form':categoryForm})
+                                                  'form':categoryForm,
+                                                  'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def SpecificCategory(response, id):
@@ -37,8 +46,12 @@ def SpecificCategory(response, id):
             return HttpResponseRedirect(f"/category/edit/{id}")
         
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         return render(response, 'specificCategory.html', {'categoryInfo':categoryInfo, 
-                                                      'id':id})
+                                                      'id':id,
+                                                      'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def CreateCategory(response):
@@ -62,10 +75,14 @@ def CreateCategory(response):
             return HttpResponseRedirect("/category/create")
 
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         form = CreateNewCategory()
 
 
-        return render(response, 'createCategory.html', {'form':form})
+        return render(response, 'createCategory.html', {'form':form,
+                                                        'projects' : projects,
+                                                    'projectform' : projectform})
 
 @login_required
 def EditCategory(response,id):
@@ -97,10 +114,15 @@ def EditCategory(response,id):
                 return HttpResponseRedirect("/category")
 
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
+
         form = CreateNewCategory(initial={  'name' : categoryModel.name,
                                             'description' : categoryModel.description})
         
-        return render(response, 'editCategory.html', {'form':form})
+        return render(response, 'editCategory.html', {'form':form,
+                                                      'projects' : projects,
+                                                    'projectform' : projectform})
 
 def ItemCategoryVersioning(action = None, itemCategoryModel = None, user=None):
     timestamper = TimestampSigner()

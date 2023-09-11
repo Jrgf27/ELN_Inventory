@@ -52,6 +52,10 @@ def LowStock(response):
                 stock_quantity += j.quantity
         item_stockList.append(stock_quantity)
 
+    projects = Projects.objects.all()
+    projectform = CreateNewProject()
     return render(response, 'lowStock.html', {'categoryList': categoryListObjects,
                                               'item_stockList' : zip(itemListObjects,
-                                                                     item_stockList)})
+                                                                     item_stockList),
+                                            'projects' : projects,
+                                            'projectform' : projectform})

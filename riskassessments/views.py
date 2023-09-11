@@ -7,13 +7,18 @@ from django.core.signing import TimestampSigner
 
 from .forms import *
 from .models import *
+from projects.models import Projects
+from projects.forms import CreateNewProject
 
 # Create your views here.
 @login_required
 def RiskAssessmentList(response):
     riskAssessmentListObjects = RiskAssessment.objects.filter(isEnabled=True)
-
-    return render(response, 'riskAssessmentList.html', {'riskAssessmentList': riskAssessmentListObjects})
+    projects=Projects.objects.filter(isEnabled=True)
+    projectform = CreateNewProject()
+    return render(response, 'riskAssessmentList.html', {'riskAssessmentList': riskAssessmentListObjects,
+                                                        'projects' : projects,
+                                                        'projectform' : projectform})
 
 @login_required
 def SpecificRiskAssessment(response, id):
@@ -33,9 +38,13 @@ def SpecificRiskAssessment(response, id):
         if response.POST.get('edit_report'):
             return HttpResponseRedirect(f"/riskassessments/edit/{id}")
     else:
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         riskAssessmentAttachments = RiskAssessmentAttachments.objects.filter(riskAssessment = riskAssessmentInfo)
         return render(response, 'specificRiskAssessment.html', {'riskAssessmentInfo': riskAssessmentInfo,
-                                                                'riskAssessmentAttachments': riskAssessmentAttachments,})
+                                                                'riskAssessmentAttachments': riskAssessmentAttachments,
+                                                                'projects' : projects,
+                                                                'projectform' : projectform})
 
 @login_required
 def CreateRiskAssessment(response):
@@ -101,9 +110,9 @@ def EditRiskAssessment(response,id):
             return render(response, 'attachedFiles_form.html', {'form':form,
                                                                 'reportId':id})
         
-
     else:  
-
+        projects=Projects.objects.filter(isEnabled=True)
+        projectform = CreateNewProject()
         riskAssessmentAttachments = RiskAssessmentAttachments.objects.filter(riskAssessment = riskAssessmentInfo)
 
         form = CreateNewRiskAssessment(initial={'title':riskAssessmentInfo.title,
@@ -113,7 +122,9 @@ def EditRiskAssessment(response,id):
                         {'form':form,
                         'riskAssessmentInfo': riskAssessmentInfo,
                         'riskAssessmentAttachments': riskAssessmentAttachments,
-                        'id':id})
+                        'id':id,
+                        'projects' : projects,
+                        'projectform' : projectform})
 
 def RiskAssessmentVersioning(action = None, riskAssessmentModel = None, user=None):
     timestamper = TimestampSigner()
@@ -131,7 +142,6 @@ def RiskAssessmentVersioning(action = None, riskAssessmentModel = None, user=Non
         lastAction = action,
         lastEditedUserSignature = esignature)
     riskAssessmentVersionModel.save()
-
 
 def CreateAttachmentForm(response, id):
     form = AttachFilesToRiskAssessment()
