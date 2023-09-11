@@ -69,10 +69,16 @@ def SpecificItem(response, id):
             return HttpResponseRedirect(f"/item/edit/{id}")
 
     else:
-        supplierItemObjects = SuppliersItems.objects.filter(itemId=id)
+        if response.GET.get("page")==None:
+            page_number_supplierItem = None
+            page_number_stock = None
+        else:
+            page_numbers=response.GET.get("page").split(",")
+            page_number_stock = page_numbers[0]
+            page_number_supplierItem = page_numbers[1]
 
-        paginator_supplierItem = Paginator(supplierItemObjects,20)
-        page_number_supplierItem = response.GET.get("page_supplierItem")
+        supplierItemObjects = SuppliersItems.objects.filter(itemId=id)
+        paginator_supplierItem = Paginator(supplierItemObjects,1)
         page_obj_supplierItem = paginator_supplierItem.get_page(page_number_supplierItem)
 
         stockListObjects = []
@@ -81,13 +87,11 @@ def SpecificItem(response, id):
             for stock in stockList:
                 stockListObjects.append(stock)
 
-        paginator_stock = Paginator(stockListObjects,20)
-        page_number_stock = response.GET.get("page_stock")
+        paginator_stock = Paginator(stockListObjects,1)
         page_obj_stock = paginator_stock.get_page(page_number_stock)
 
         stockform = CreateNewItemStock(initial={'itemId': id}, parentItem=id)
-        supplierItemform = CreateNewItemSupplier(
-            initial={'itemId': id}, parentItem=id)
+        supplierItemform = CreateNewItemSupplier(initial={'itemId': id}, parentItem=id)
         removeQuantityStockform = RemoveStockQuantity()
         addQuantityStockform = AddStockQuantity()
 

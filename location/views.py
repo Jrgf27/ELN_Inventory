@@ -53,16 +53,22 @@ def SpecificLocation(response, id):
         projects=Projects.objects.filter(isEnabled=True)
         projectform = CreateNewProject()
 
+        if response.GET.get("page")==None:
+            page_number_location = None
+            page_number_stock = None
+        else:
+            page_numbers=response.GET.get("page").split(",")
+            page_number_stock = page_numbers[0]
+            page_number_location = page_numbers[1]
+
         locationlistobjects = Locations.objects.filter(parentLocation = locationObject).filter(isEnabled=True)
 
         paginator_location = Paginator(locationlistobjects,20)
-        page_number_location = response.GET.get("page_location")
         page_obj_location = paginator_location.get_page(page_number_location)
 
         stockListObjects = Stock.objects.filter(isEnabled=True).filter(locationId=locationObject)
 
         paginator_stock = Paginator(stockListObjects,20)
-        page_number_stock = response.GET.get("page_stock")
         page_obj_stock = paginator_stock.get_page(page_number_stock)
 
         stockform = CreateNewItemStock(initial={'locationId' : locationObject}, parentItem = 0)
