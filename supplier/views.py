@@ -23,6 +23,7 @@ def SupplierList(response):
                                                   'projects' : projects,
                                                     'projectform' : projectform})
 
+
 @login_required
 def SpecificSupplier(response, id):
     supplierInfo = Suppliers.objects.get(id=id)
