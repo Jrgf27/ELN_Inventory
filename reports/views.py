@@ -15,9 +15,9 @@ from projects.forms import CreateNewProject
 # Create your views here.
 @login_required
 def ReportList(response, projectname):
-    reportListObjects = Reports.objects.filter(isEnabled=True).filter(project=Projects.objects.get(name=projectname))
+    reportListObjects = Reports.objects.filter(isEnabled=True).filter(project=Projects.objects.get(name=projectname)).order_by('-creationDate')
 
-    paginator = Paginator(reportListObjects,1)
+    paginator = Paginator(reportListObjects,20)
     page_number = response.GET.get("page")
     page_obj = paginator.get_page(page_number)
 

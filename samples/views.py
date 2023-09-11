@@ -4,6 +4,8 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.core.signing import TimestampSigner
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+
 from .forms import *
 from .models import *
 
@@ -16,9 +18,14 @@ from projects.forms import CreateNewProject
 def sampleTypeList(response):
     sampletypeform = CreateNewSampleType()
     sampleTypeList = SampleType.objects.filter(isEnabled=True)
+
+    paginator = Paginator(sampleTypeList,20)
+    page_number = response.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     projects=Projects.objects.filter(isEnabled=True)
     projectform = CreateNewProject()
-    return render(response, 'sampleTypeList.html', {'sampleTypeList':sampleTypeList,
+    return render(response, 'sampleTypeList.html', {'page_obj':page_obj,
                                                   'sampletypeform':sampletypeform,
                                                   'projects' : projects,
                                                     'projectform' : projectform})
@@ -77,15 +84,20 @@ def SpecificSampleType(response, id):
     else:
         projects=Projects.objects.filter(isEnabled=True)
         projectform = CreateNewProject()
+
         sampleList = Sample.objects.filter(isEnabled=True).filter(sampleType = sampleTypeModel)
         sampleform = CreateNewSample(initial={'sampleType' : sampleTypeModel})
+
+        paginator = Paginator(sampleList,20)
+        page_number = response.GET.get("page")
+        page_obj = paginator.get_page(page_number)
 
         return render(response, 'specificSampleType.html', {'sampleTypeModel':sampleTypeModel, 
                                                             'id':id,
                                                             'sampleform':sampleform,
-                                                            'sampleList':sampleList,
+                                                            'page_obj':page_obj,
                                                             'projects' : projects,
-                                                    'projectform' : projectform})
+                                                            'projectform' : projectform})
 
 @login_required
 def EditSampleType(response,id):

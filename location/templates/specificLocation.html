@@ -46,13 +46,65 @@
 <div style="width:100%; overflow:auto; max-height:500px;">
     <table class="table">
         <tbody>
-        {% for location in locationlist %}
+        {% for location in page_obj_location %}
             {% include 'location_details.html'  %}
         {% endfor %}
         <tr id="locationListing"></tr>
         </tbody>
     </table>
 </div>
+
+<nav aria-label="Page navigation">
+  <ul class="pagination">
+      {%if page_obj_location.has_previous%}
+          <li class="page-item">
+              <a class="page-link" href="?page_location=1" aria-label="First">
+              <span aria-hidden="true">&laquo;</span>
+              </a>
+          </li>
+          <li class="page-item">
+              <a class="page-link" href="?page_location={{page_obj_location.previous_page_number}}" aria-label="Previous">
+              <span aria-hidden="true">Previous</span>
+              </a>
+          </li>
+      {% else %}
+          <li class="page-item">
+              <span class="page-link disabled" aria-hidden="true">&laquo;</span>
+          </li>
+          <li class="page-item">
+              <span class="page-link disabled" aria-hidden="true">Previous</span>
+          </li>
+      {% endif%}
+      
+      {% for page in page_obj_location.paginator.page_range %}
+          {% if page == page_obj_location.number %}
+              <li class="page-item active"><a class="page-link" href="?page_location={{page}}">{{page}}</a></li>
+          {% else %}
+              <li class="page-item"><a class="page-link" href="?page_location={{page}}">{{page}}</a></li>
+          {% endif %}
+      {% endfor %}
+
+      {%if page_obj_location.has_next%}
+          <li class="page-item">
+              <a class="page-link" href="?page_location={{page_obj_location.next_page_number}}" aria-label="Next">
+              <span aria-hidden="true">Next</span>
+              </a>
+          </li>
+          <li class="page-item">
+              <a class="page-link" href="?page_location={{page_obj_location.paginator.num_pages}}" aria-label="Last">
+              <span aria-hidden="true">&raquo;</span>
+              </a>
+          </li>
+      {% else %}
+          <li class="page-item">
+              <span class="page-link disabled" aria-hidden="true">Next</span>
+          </li>
+          <li class="page-item">
+              <span class="page-link disabled" aria-hidden="true">&raquo;</span>
+          </li>
+      {% endif%}
+  </ul>
+</nav>
 
 <br>
 <br>
@@ -104,12 +156,64 @@
 <div style="width:100%; overflow:auto; max-height:500px;">
   <table class="table">
       <tbody>
-        {% for stock in stockList %}
+        {% for stock in page_obj_stock %}
             {% include 'stock_details.html'  %}
         {% endfor %}
         <tr id="stockListing"></tr>
       </tbody>
   </table>
 </div>
+
+<nav aria-label="Page navigation">
+  <ul class="pagination">
+      {%if page_obj_stock.has_previous%}
+          <li class="page-item">
+              <a class="page-link" href="?page_stock=1" aria-label="First">
+              <span aria-hidden="true">&laquo;</span>
+              </a>
+          </li>
+          <li class="page-item">
+              <a class="page-link" href="?page_stock={{page_obj_stock.previous_page_number}}" aria-label="Previous">
+              <span aria-hidden="true">Previous</span>
+              </a>
+          </li>
+      {% else %}
+          <li class="page-item">
+              <span class="page-link disabled" aria-hidden="true">&laquo;</span>
+          </li>
+          <li class="page-item">
+              <span class="page-link disabled" aria-hidden="true">Previous</span>
+          </li>
+      {% endif%}
+      
+      {% for page in page_obj_stock.paginator.page_range %}
+          {% if page == page_obj_stock.number %}
+              <li class="page-item active"><a class="page-link" href="?page_stock={{page}}">{{page}}</a></li>
+          {% else %}
+              <li class="page-item"><a class="page-link" href="?page_stock={{page}}">{{page}}</a></li>
+          {% endif %}
+      {% endfor %}
+
+      {%if page_obj_stock.has_next%}
+          <li class="page-item">
+              <a class="page-link" href="?page_stock={{page_obj_stock.next_page_number}}" aria-label="Next">
+              <span aria-hidden="true">Next</span>
+              </a>
+          </li>
+          <li class="page-item">
+              <a class="page-link" href="?page_stock={{page_obj_stock.paginator.num_pages}}" aria-label="Last">
+              <span aria-hidden="true">&raquo;</span>
+              </a>
+          </li>
+      {% else %}
+          <li class="page-item">
+              <span class="page-link disabled" aria-hidden="true">Next</span>
+          </li>
+          <li class="page-item">
+              <span class="page-link disabled" aria-hidden="true">&raquo;</span>
+          </li>
+      {% endif%}
+  </ul>
+</nav>
 
 {% endblock %}

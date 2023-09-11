@@ -4,6 +4,7 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.core.signing import TimestampSigner
+from django.core.paginator import Paginator
 
 from .models import *
 from .forms import CreateNewSupplier, CreateNewSupplierItem
@@ -15,14 +16,18 @@ from projects.forms import CreateNewProject
 def SupplierList(response):
 
     supplierListObjects = Suppliers.objects.filter(isEnabled=True)
+
+    paginator = Paginator(supplierListObjects,20)
+    page_number = response.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     form = CreateNewSupplier()
     projects=Projects.objects.filter(isEnabled=True)
     projectform = CreateNewProject()
-    return render(response, 'supplierList.html', {'supplierList':supplierListObjects,
+    return render(response, 'supplierList.html', {'page_obj':page_obj,
                                                   'form':form,
                                                   'projects' : projects,
                                                     'projectform' : projectform})
-
 
 @login_required
 def SpecificSupplier(response, id):
@@ -65,8 +70,13 @@ def SpecificSupplier(response, id):
     else:
         projects=Projects.objects.filter(isEnabled=True)
         projectform = CreateNewProject()
+
+        paginator = Paginator(supplierItemInfo,20)
+        page_number = response.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+
         return render(response, 'specificSupplier.html', {  'supplierInfo':supplierInfo,
-                                                            'supplierItemList': supplierItemInfo,
+                                                            'page_obj': page_obj,
                                                             'id':id,
                                                             'supplierItemform':supplierItemform,
                                                             'projects' : projects,

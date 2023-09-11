@@ -4,6 +4,7 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.core.signing import TimestampSigner
+from django.core.paginator import Paginator
 
 from .forms import *
 from .models import *
@@ -13,10 +14,15 @@ from projects.forms import CreateNewProject
 # Create your views here.
 @login_required
 def RiskAssessmentList(response):
-    riskAssessmentListObjects = RiskAssessment.objects.filter(isEnabled=True)
+    riskAssessmentListObjects = RiskAssessment.objects.filter(isEnabled=True).order_by('-creationDate')
+
+    paginator = Paginator(riskAssessmentListObjects,20)
+    page_number = response.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     projects=Projects.objects.filter(isEnabled=True)
     projectform = CreateNewProject()
-    return render(response, 'riskAssessmentList.html', {'riskAssessmentList': riskAssessmentListObjects,
+    return render(response, 'riskAssessmentList.html', {'page_obj' : page_obj,
                                                         'projects' : projects,
                                                         'projectform' : projectform})
 

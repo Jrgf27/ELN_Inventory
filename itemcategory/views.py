@@ -4,7 +4,7 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.core.signing import TimestampSigner
 from django.contrib.auth.decorators import login_required
-
+from django.core.paginator import Paginator
 
 from .models import *
 from .forms import CreateNewCategory
@@ -19,10 +19,14 @@ def CategoryList(response):
     categoryListObjects = ItemCategory.objects.filter(isEnabled=True)
     categoryForm=CreateNewCategory()
 
+    paginator = Paginator(categoryListObjects,20)
+    page_number = response.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     projects=Projects.objects.filter(isEnabled=True)
     projectform = CreateNewProject()
 
-    return render(response, 'categoryList.html', {'categoryList':categoryListObjects,
+    return render(response, 'categoryList.html', {'page_obj':page_obj,
                                                   'form':categoryForm,
                                                   'projects' : projects,
                                                     'projectform' : projectform})

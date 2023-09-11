@@ -4,6 +4,7 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.core.signing import TimestampSigner
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 from .models import *
 from stock.models import Stock
@@ -19,8 +20,9 @@ from .forms import *
 @login_required
 def ItemList(response):
 
-    itemListObjects = Items.objects.filter(isEnabled=True)
+    itemListObjects = Items.objects.filter(isEnabled=True).order_by('name')
     stockListObjects = Stock.objects.filter(isEnabled=True)
+
     form = CreateNewItem()
     item_stockList = []
     for i in itemListObjects:
@@ -30,15 +32,18 @@ def ItemList(response):
                 continue
             if j.itemId.itemId.id == i.id:
                 stock_quantity += j.quantity
-        item_stockList.append(stock_quantity)
+        item_stockList.append((i,stock_quantity))
 
     projects=Projects.objects.filter(isEnabled=True)
     projectform = CreateNewProject()
 
-    return render(response, 'itemList.html', {'item_stockList': zip(itemListObjects,
-                                                                    item_stockList),
-                                              'form': form,
-                                              'projects' : projects,
+    paginator = Paginator(item_stockList,20)
+    page_number = response.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(response, 'itemList.html', {'page_obj':page_obj,
+                                                'form': form,
+                                                'projects' : projects,
                                                 'projectform' : projectform})
 
 @login_required
@@ -65,12 +70,20 @@ def SpecificItem(response, id):
 
     else:
         supplierItemObjects = SuppliersItems.objects.filter(itemId=id)
+
+        paginator_supplierItem = Paginator(supplierItemObjects,20)
+        page_number_supplierItem = response.GET.get("page_supplierItem")
+        page_obj_supplierItem = paginator_supplierItem.get_page(page_number_supplierItem)
+
         stockListObjects = []
         for item in supplierItemObjects:
-            stockList = Stock.objects.filter(
-                itemId=item).filter(isEnabled=True)
+            stockList = Stock.objects.filter(itemId=item).filter(isEnabled=True)
             for stock in stockList:
                 stockListObjects.append(stock)
+
+        paginator_stock = Paginator(stockListObjects,20)
+        page_number_stock = response.GET.get("page_stock")
+        page_obj_stock = paginator_stock.get_page(page_number_stock)
 
         stockform = CreateNewItemStock(initial={'itemId': id}, parentItem=id)
         supplierItemform = CreateNewItemSupplier(
@@ -82,8 +95,8 @@ def SpecificItem(response, id):
         projectform = CreateNewProject()
 
         return render(response, 'specificItem.html', {'itemInfo': itemInfo,
-                                                      'stockList': stockListObjects,
-                                                      'supplierItemList': supplierItemObjects,
+                                                      'page_obj_stock': page_obj_stock,
+                                                      'page_obj_supplierItem': page_obj_supplierItem,
                                                       'id': id,
                                                       'supplierItemform': supplierItemform,
                                                       'stockform': stockform,

@@ -4,6 +4,7 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.core.signing import TimestampSigner
+from django.core.paginator import Paginator
 
 from .models import *
 from reports.models import Reports
@@ -17,10 +18,15 @@ def stockList(response):
     projects=Projects.objects.filter(isEnabled=True)
     projectform = CreateNewProject()
     stockListObjects = Stock.objects.filter(isEnabled=True)
+
+    paginator = Paginator(stockListObjects,20)
+    page_number = response.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     stockform = CreateNewItemStock(parentItem = 0)
     removeQuantityStockform = RemoveStockQuantity()
     addQuantityStockform = AddStockQuantity()
-    return render(response, 'stockList.html', {'stockList':stockListObjects,
+    return render(response, 'stockList.html', {'page_obj':page_obj,
                                                 'stockform':stockform,
                                                 'removeQuantityStockform':removeQuantityStockform,
                                                 'addQuantityStockform':addQuantityStockform,
