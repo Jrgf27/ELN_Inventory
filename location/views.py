@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http.response import HttpResponse
 from django.utils import timezone
 from django.core.signing import TimestampSigner
@@ -37,17 +37,17 @@ def SpecificLocation(response, id):
     locationObject = Locations.objects.get(id=id)
 
     if not locationObject.isEnabled:
-        return HttpResponseRedirect("/location")
+        return redirect('LocationList')
 
     if response.method == "POST":
         if response.POST.get('delete_location'):
             locationObject.isEnabled=False
             locationObject.save()
             LocationVersioning(action = "DELETED", locationModel = locationObject, user=response.user)
-            return HttpResponseRedirect("/location")
+            return redirect('LocationList')
         
         if response.POST.get('edit_location'):
-            return HttpResponseRedirect(f"/location/edit/{id}")
+            return redirect('editLocation', id=id)
         
     else:
         projects=Projects.objects.filter(isEnabled=True)
@@ -126,12 +126,12 @@ def EditLocation(response,id):
     locationModel = Locations.objects.get(id=id)
 
     if not locationModel.isEnabled:
-        return HttpResponseRedirect("/location")
+        return redirect('LocationList')
     
     if response.method == "POST":
 
         if response.POST.get('exit'):
-                return HttpResponseRedirect(f"/location/{id}")
+            return redirect('specificLocation', id=id)
         
         if response.POST.get('save'):
 
@@ -140,12 +140,24 @@ def EditLocation(response,id):
                 
                 locationModel.name = form.cleaned_data['name']
                 locationModel.description = form.cleaned_data['description']
+                
+
+                currentLocationQuery = form.cleaned_data['parentID']
+                while currentLocationQuery:
+                    if currentLocationQuery == locationModel:
+                        locationModel.save()
+                        LocationVersioning(action = "EDITED", locationModel = locationModel, user=response.user)
+                        print("Recursivness Detected")
+                        return redirect('specificLocation', id=id)
+                    currentLocationQuery = currentLocationQuery.parentLocation
+
                 locationModel.parentLocation = form.cleaned_data['parentID']
+                print("Not Recursive")
 
                 locationModel.save()
                 LocationVersioning(action = "EDITED", locationModel = locationModel, user=response.user)
 
-                return HttpResponseRedirect("/location")
+                return redirect('specificLocation', id=id)
 
     else:
         projects=Projects.objects.filter(isEnabled=True)
