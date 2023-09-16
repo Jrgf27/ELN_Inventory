@@ -141,7 +141,6 @@ def EditLocation(response,id):
                 locationModel.name = form.cleaned_data['name']
                 locationModel.description = form.cleaned_data['description']
                 
-
                 currentLocationQuery = form.cleaned_data['parentID']
                 while currentLocationQuery:
                     if currentLocationQuery == locationModel:
