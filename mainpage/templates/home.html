@@ -4,103 +4,37 @@
 
 <h1> Home Page </h1>
 
-<br>
-<br>
-<table class="table" style="width: 100%;">
-    <thead>
-      <tr>
-        <th width="25%" scope="col">Item</th>
-        <th width="25%" scope="col">Minimum Stock</th>
-        <th width="25%" scope="col">Current Stock</th>
-        <th width="25%" scope="col">Category</th>
-      </tr>
-    </thead>
-</table>
-<div style="width:100%; overflow:auto; max-height:500px;">
-    <table class="table">
-        <tbody>
-        {% for item,stockQuantity in page_obj %}
-            <tr>
-                <td width="25%">
-                    <a href="{% url 'specificItem' item.id %}">
-                        {{item.name}}
-                    </a>
-                </td>
-                <td width="25%">
-                    {{item.minimumStock}}
-                </td>
-                {% if stockQuantity <= item.minimumStock %}
-                    <td width="25%" class="table-danger">
-                {% else %}
-                    <td width="25%">
-                {% endif %}
-                            {{stockQuantity}}
-                    </td>
-                    
-                <td width="25%">
-                    {% for category in categoryList %}
-                        {% if category.id == item.itemCategoryId_id %}
-                            <a href="{% url 'specificCategory' category.id %}">
-                                {{category.name}}
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
+<p> This project is the combination of an Electronic Laboratory Notebook system and an Electronic Inventory Management system.</p>
 
-<nav aria-label="Page navigation">
-    <ul class="pagination">
-        {%if page_obj.has_previous%}
-            <li class="page-item">
-                <a class="page-link" href="?page=1" aria-label="First">
-                <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{page_obj.previous_page_number}}" aria-label="Previous">
-                <span aria-hidden="true">Previous</span>
-                </a>
-            </li>
-        {% else %}
-            <li class="page-item">
-                <span class="page-link disabled" aria-hidden="true">&laquo;</span>
-            </li>
-            <li class="page-item">
-                <span class="page-link disabled" aria-hidden="true">Previous</span>
-            </li>
-        {% endif%}
-        
-        {% for page in page_obj.paginator.page_range %}
-            {% if page == page_obj.number %}
-                <li class="page-item active"><a class="page-link" href="?page={{page}}">{{page}}</a></li>
-            {% else %}
-                <li class="page-item"><a class="page-link" href="?page={{page}}">{{page}}</a></li>
-            {% endif %}
-        {% endfor %}
 
-        {%if page_obj.has_next%}
-            <li class="page-item">
-                <a class="page-link" href="?page={{page_obj.next_page_number}}" aria-label="Next">
-                <span aria-hidden="true">Next</span>
-                </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{page_obj.paginator.num_pages}}" aria-label="Last">
-                <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-        {% else %}
-            <li class="page-item">
-                <span class="page-link disabled" aria-hidden="true">Next</span>
-            </li>
-            <li class="page-item">
-                <span class="page-link disabled" aria-hidden="true">&raquo;</span>
-            </li>
-        {% endif%}
-    </ul>
-</nav>
+<p>The Inventory sub-system allows for the creation of Item Categories, Items, Suppliers, Stock and Stock Location. 
+    The workflow from having nothing in the system to inputing your inventory stock items should be as follows:</p>
+<ol>
+    <li>Create all <b>locations</b> where stock is present at your laboratory/workshop.</li>
+    <li>Create all item <b>categories</b> which you will use to group different items together.</li>
+    <li>Create all <b>suppliers</b> used to purchase/acquire the stock of items you will want to input on the system.</li>
+    <li>Create all the specific <b>items</b> stocked at your laboratory/workshop.</li>
+    <li>Create specific <b>supplier items</b>, as to link the previously created suppliers with the newly created items</li>
+    <li>Create each individual <b>stock</b> listing, which will refer to a specific supplier item. Input minimum quantities if needed.</li>
+</ol>
+
+<p>Additionally, the user may differentiate between item stock and samples if needed. 
+    A similar process for sample creation is performed, but with sample type and specific sample instead.</p>
+
+<p> Equipment used at the facility can be created in the database using the appropriate <b>Equipment</b> link at the navigation bar</p>
+
+<p>The Electronic Laboratory Notebook system enables the creation of three types of documents at the moment:</p>
+<ul>
+    <li>Standard Operating Protocols (SOPs)</li>
+    <li>Risk Assessments (RAs)</li>
+    <li>Laboratory Reports, which are grouped by specific projects/teams</li>
+</ul>
+
+<p>To create a report, <b>create the project/team</b> in which that report to which it belongs to. 
+    Following this, navigate to the project page using the dropdown <b>Projects</b> and select the created project.</p>
+
+<p>The laboratory reports can be linked with other items present in the database (visible in the edit view), 
+    such as specific stock, samples, equipments, other reports and SOPs. These can also be tagged with specific 
+    keywords for filtering.</p>
+
 {% endblock %}
