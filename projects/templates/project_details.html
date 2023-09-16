@@ -3,7 +3,7 @@
 
 
 <li hx-target="this" hx-swap="outerHTML">
-    <a class="dropdown-item" href="/reports">{{project.name}}
+    <a class="dropdown-item" href="{% url 'ReportList' project.name %}">{{project.name}}
 
     </a>
 </li>
