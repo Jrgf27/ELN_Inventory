@@ -39,4 +39,9 @@ urlpatterns = [
     path('htmx/create-editor-form/<int:id>', views.CreateReportEditorForm, name='create-reporteditor-form'),
     path('htmx/editor/<int:reportId>/<int:userId>/', views.SpecificReportEditor, name='specificReportEditor'),
     path('htmx/editor/<int:reportId>/<int:userId>/delete', views.DeleteReportEditor, name='deleteReportEditor'),
+
+    path('htmx/create-reviewer-form/<int:id>', views.CreateReportReviewerForm, name='create-reportreviewer-form'),
+    path('htmx/reviewer/<int:reportId>/<int:userId>/', views.SpecificReportReviewer, name='specificReportReviewer'),
+    path('htmx/reviewer/<int:reportId>/<int:userId>/delete', views.DeleteReportReviewer, name='deleteReportReviewer'),
+    path('htmx/reviewer/<int:userId>/<int:decision>', views.ReportReviewDecision, name='decisionReportReview'),
 ]

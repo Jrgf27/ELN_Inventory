@@ -26,6 +26,7 @@ class CreateNewSupplierItem(forms.Form):
                                                             label='Supplier')
         self.fields['website'] = forms.URLField(label= 'Supplier Website', required=False)
         self.fields['supplierProductCode'] =forms.CharField(label = 'Supplier Product Code', max_length=200, required=True)
+        self.fields['price'] = forms.DecimalField(label='Item Price', max_digits=10, decimal_places=2)
 
         self.fields['itemId'] = forms.ModelChoiceField(queryset=Items.objects.filter(isEnabled=True), 
                                                         required=True, 
@@ -42,6 +43,7 @@ class CreateNewItemSupplier(forms.Form):
                                                             label='Supplier')
         self.fields['website'] = forms.URLField(label= 'Supplier Website', required=False)
         self.fields['supplierProductCode'] =forms.CharField(label = 'Supplier Product Code', max_length=200, required=True)
+        self.fields['price'] = forms.DecimalField(label='Item Price', max_digits=10, decimal_places=2)
 
         self.fields['itemId'] = forms.ModelChoiceField(queryset=Items.objects.filter(id = parentItem).filter(isEnabled=True), 
                                                         required=True, 

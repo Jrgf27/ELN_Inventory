@@ -11,6 +11,8 @@ class Stock(models.Model):
     hasBatchCode = models.BooleanField()
     locationId = models.ForeignKey(Locations, on_delete=models.SET_NULL, null=True)
     itemId = models.ForeignKey(SuppliersItems, on_delete=models.CASCADE, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
     isEnabled=models.BooleanField(default=True)
 
     def __str__(self) -> str:
@@ -23,6 +25,7 @@ class Stock_Versions(models.Model):
     hasBatchCode = models.BooleanField()
     locationId = models.ForeignKey(Locations, on_delete=models.SET_NULL, null=True)
     itemId = models.ForeignKey(SuppliersItems, on_delete=models.CASCADE, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     lastAction = models.CharField(max_length=10)
     lastEditedUserSignature = models.CharField(max_length=200, default="")

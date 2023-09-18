@@ -8,8 +8,33 @@
 
 {% load crispy_forms_tags %}
 
-{% block content %}
+{% block leftSide %}
+<h5>Reviewers</h5>
+<div class="card">
+    <div class="card-body">
+        <div class="container">
+            <div class="row align-items-start">
+                <div class="col">
+                    <button type="button" hx-get="{% url 'create-reportreviewer-form' reportInfo.id %}" 
+                    hx-target="#reviewerforms" hx-swap="beforeend" class="btn btn-primary btn-sm">
+                        Add Reviewer
+                    </button>
+                    <br>
+                    {% for reviewer in reviewerList %}
+                        {% include 'reportreviewer_detail.html'%}
+                    {% endfor %}
+                    <div id="reviewerforms"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
+{% endblock %}
+
+
+
+{% block content %}
 
 <form method="post">
     {% csrf_token %}
@@ -184,7 +209,5 @@
     <button type="submit" name="save" value="True" class="btn btn-success">Save</button>
     <button type="submit" name="exit" value="True" class="btn btn-danger">Exit</button>
 </form>
-
-
 
 {% endblock %}

@@ -21,6 +21,28 @@ class ReportsAttachments(models.Model):
     def __str__(self) -> str:
         return self.file.name.split("/")[-1]
 
+class ReportReviewers(models.Model):
+    reviewer = models.ForeignKey(User,on_delete=models.SET_NULL, null=True)
+    reviewDecision = models.CharField(max_length=10, default="")
+    reviewed = models.BooleanField(default=False)
+    reviewerSignature = models.CharField(max_length=200, null=True, blank=True, default="")
+
+    def __str__(self) -> str:
+        return self.reviewer.username
+    
+class ReportReviewers_Versions(models.Model):
+    reportReviewer = models.ForeignKey(ReportReviewers,on_delete=models.SET_NULL, null=True)
+    reviewer = models.ForeignKey(User,on_delete=models.SET_NULL, null=True)
+    reviewDecision = models.CharField(max_length=10, default="")
+    reviewed = models.BooleanField(default=False)
+    reviewerSignature = models.CharField(max_length=200, null=True, blank=True, default="")
+
+    lastAction = models.CharField(max_length=10)
+    lastEditedUserSignature = models.CharField(max_length=200, default="")
+    lastEditedDate = models.DateField(auto_now_add=True)
+    def __str__(self) -> str:
+        return self.reviewer.username
+
 class Reports(models.Model):
     title = models.CharField(max_length=200)
     reportBody = RichTextField(blank=True,null=True)
@@ -36,6 +58,9 @@ class Reports(models.Model):
     linkedSamples=models.ManyToManyField(Sample, related_name="linkedSamples")
     linkedEquipments=models.ManyToManyField(Equipment, related_name="linkedEquipments")
     linkedAttachment=models.ManyToManyField(ReportsAttachments, related_name="linkedAttachment")
+
+    reportReviewers = models.ManyToManyField(ReportReviewers, related_name="reviewers")
+    reviewed = models.BooleanField(default=False)
 
     project = models.ForeignKey(Projects, on_delete=models.SET_NULL, null=True)
 
@@ -60,6 +85,9 @@ class Reports_Versions(models.Model):
     linkedSamples=models.ManyToManyField(Sample, related_name="linkedSamples_versions")
     linkedEquipments=models.ManyToManyField(Equipment, related_name="linkedEquipments_versions")
     linkedAttachment=models.ManyToManyField(ReportsAttachments, related_name="linkedAttachment_versions")
+
+    reportReviewers = models.ManyToManyField(ReportReviewers, related_name="reviewers_versions")
+    reviewed = models.BooleanField(default=False)
 
     canEditUsers = models.ManyToManyField(User, related_name="canEditUsers_versions")
 
