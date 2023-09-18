@@ -32,7 +32,7 @@ def ReportList(response, projectname):
 @login_required
 def SpecificReport(response, projectname, id):
     reportInfo = Reports.objects.get(id=id)
-    editers= reportInfo.canEditUsers.all()
+    editors= reportInfo.canEditUsers.all()
 
     if not reportInfo.isEnabled:
         return redirect('reportList', projectname=projectname)
@@ -59,6 +59,7 @@ def SpecificReport(response, projectname, id):
         reportLinkedSamples = reportInfo.linkedSamples.all()
         reportLinkedEquipment = reportInfo.linkedEquipments.all()
         tagsInReport = reportInfo.reportTags.all()
+        reviewers = reportInfo.reportReviewers.all()
 
         projects=Projects.objects.all()
         projectform = CreateNewProject()
@@ -70,7 +71,8 @@ def SpecificReport(response, projectname, id):
                                                         'tagList':tagsInReport,
                                                         'reportLinkedSamples':reportLinkedSamples,
                                                         'reportLinkedEquipment' : reportLinkedEquipment,
-                                                        'editers':editers,
+                                                        'editors':editors,
+                                                        'reviewerList':reviewers,
                                                         'projects' : projects,
                                                         'selectedProject': projectname,
                                                         'projectform' : projectform})
@@ -228,6 +230,29 @@ def EditReport(response, projectname, id):
             form = AllowEditForm(userId = response.user.id)
             return render(response, 'reporteditor_form.html', {'form':form,
                                                         'reportId':id})
+        
+        if response.POST.get('newReviewer'):
+
+            for reviewer in reportInfo.reportReviewers.all():
+                print(reviewer, int(response.POST.get('newReviewer')))
+                if reviewer.reviewer.id == int(response.POST.get('newReviewer')):
+                    form = ReviewerForm(userId = response.user.id)
+                    return render(response, 'reportreviewer_form.html', {'form':form,
+                                                                        'reportId':id})
+
+            reviewerModel = ReportReviewers(
+                reviewer = User.objects.get(id=response.POST.get('newReviewer')),
+            )
+            reviewerModel.save()
+            reportInfo.reportReviewers.add(reviewerModel)
+            ReportVersioning(action = "ADDED_REVIEWER", reportModel = reportInfo, user=response.user)
+            ReportReviewingVersioning(action="ADDED_REVIEWER", reviewerModel=reviewerModel, user=response.user)
+            return redirect('specificReportReviewer',reportInfo.id, reviewerModel.id)
+        
+        if response.POST.get('newReviewer')=="":
+            form = ReviewerForm(userId = response.user.id)
+            return render(response, 'reportreviewer_form.html', {'form':form,
+                                                                'reportId':id})
 
         if response.FILES.get('attachedFile'):
             form = AttachFilesToReport(response.POST, response.FILES)
@@ -257,6 +282,7 @@ def EditReport(response, projectname, id):
         tagsInReport = reportInfo.reportTags.all()
         editors = reportInfo.canEditUsers.exclude(id=reportInfo.owner.id)
 
+        reviewers = reportInfo.reportReviewers.all()
 
         form = CreateNewReport(initial={'title':reportInfo.title,
                                         'reportBody':reportInfo.reportBody})
@@ -274,6 +300,7 @@ def EditReport(response, projectname, id):
                                                     'reportEquipment' : reportEquipment,
                                                     'tagList':tagsInReport,
                                                     'editorList' : editors,
+                                                    'reviewerList':reviewers,
                                                     'id':id,
                                                     'projects' : projects,
                                                     'selectedProject': projectname,
@@ -293,6 +320,7 @@ def ReportVersioning(action = None, reportModel = None, user=None):
         report = reportModel,
         title = reportModel.title,
         reportBody = reportModel.reportBody,
+        reviewed = reportModel.reviewed,
         lastAction = action,
         lastEditedUserSignature = esignature,)
     reportVersionModel.save()
@@ -305,6 +333,7 @@ def ReportVersioning(action = None, reportModel = None, user=None):
     reportVersionModel.linkedEquipments.set(reportModel.linkedEquipments.all())
     reportVersionModel.linkedAttachment.set(reportModel.linkedAttachment.all())
     reportVersionModel.canEditUsers.set(reportModel.canEditUsers.all())
+    reportVersionModel.reportReviewers.set(reportModel.reportReviewers.all())
 
 def CreateReagentsForm(response, id):
     form = AttachReagentsToReport()
@@ -460,3 +489,70 @@ def DeleteReportEditor(response, reportId, userId):
     reportModel.canEditUsers.remove(User.objects.get(id=userId))
     ReportVersioning(action = "REMOVED_EDITOR", reportModel = reportModel, user=response.user)
     return HttpResponse('')
+
+
+def CreateReportReviewerForm(response, id):
+    form = ReviewerForm(userId = response.user.id)
+    return render(response, 'reportreviewer_form.html', {'form':form,
+                                                   'reportId':id})
+
+def SpecificReportReviewer(response, reportId, userId):
+    reportModel = Reports.objects.get(id=reportId)
+    reviewerModel= reportModel.reportReviewers.get(id=userId)
+    return render(response, 'reportreviewer_detail.html', {'reportInfo':reportModel,
+                                                        'reviewer': reviewerModel})
+
+def DeleteReportReviewer(response, reportId, userId):
+    reportModel = Reports.objects.get(id=reportId)
+    reviewerModel = ReportReviewers.objects.get(id=userId)
+    reportModel.reportReviewers.remove(reviewerModel)
+    ReportVersioning(action = "REMOVED_REVIEWER", reportModel = reportModel, user=response.user)
+    ReportReviewingVersioning(action="REMOVED_REVIEWER", reviewerModel=reviewerModel, user=response.user)
+    return HttpResponse('')
+
+def ReportReviewDecision(response, userId, decision):
+    
+    reviewerModel = ReportReviewers.objects.get(id=userId)
+    if response.user.id != reviewerModel.reviewer.id:
+        return render(response, 'reportreviewer_detail_specific.html', {'reviewer': reviewerModel})
+    
+    timestamper = TimestampSigner()
+    esignature = timestamper.sign_object({
+        "ID":response.user.id, 
+        "Username":response.user.username,
+        "Email": response.user.email,
+        "FirstName": response.user.first_name,
+        "LastName": response.user.last_name,
+        "TimeOfSignature": str(timezone.now())})
+    
+    if decision == 1:
+        reviewerModel.reviewDecision = 'ACCEPTED'
+    else:
+        reviewerModel.reviewDecision = 'DECLINED'
+
+    reviewerModel.reviewed = True
+    reviewerModel.reviewerSignature = esignature
+    reviewerModel.save()
+    ReportReviewingVersioning(action="DECISION", reviewerModel=reviewerModel, user=response.user)
+    return render(response, 'reportreviewer_detail_specific.html', {'reviewer': reviewerModel})
+
+def ReportReviewingVersioning(action = None, reviewerModel = None, user=None):
+    timestamper = TimestampSigner()
+    esignature = timestamper.sign_object({
+        "ID":user.id, 
+        "Username":user.username,
+        "Email": user.email,
+        "FirstName": user.first_name,
+        "LastName": user.last_name,
+        "TimeOfSignature": str(timezone.now())})
+    
+    reviewerVersionModel = ReportReviewers_Versions(
+        reportReviewer = reviewerModel,
+        reviewer = reviewerModel.reviewer,
+        reviewDecision = reviewerModel.reviewDecision,
+        reviewed = reviewerModel.reviewed,
+        reviewerSignature = reviewerModel.reviewerSignature,
+
+        lastAction = action,
+        lastEditedUserSignature = esignature,)
+    reviewerVersionModel.save()

@@ -38,6 +38,7 @@ class SuppliersItems(models.Model):
     supplierProductCode = models.CharField(max_length=200)
     supplierId = models.ForeignKey(Suppliers, on_delete=models.SET_NULL, null=True)
     itemId = models.ForeignKey(Items, on_delete=models.SET_NULL, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     isEnabled = models.BooleanField(default=True)
 
     def __str__(self) -> str:
@@ -53,6 +54,7 @@ class SuppliersItems_Versions(models.Model):
     supplierProductCode = models.CharField(max_length=200)
     supplierId = models.ForeignKey(Suppliers, on_delete=models.SET_NULL, null=True)
     itemId = models.ForeignKey(Items, on_delete=models.SET_NULL, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     
     lastAction = models.CharField(max_length=10)
     lastEditedUserSignature = models.CharField(max_length=200, default="")

@@ -205,17 +205,15 @@ def CreateLocationHTMX(response):
             if parentLocation == None:
                 locationModel = Locations(name=locationName, 
                                         description = locationDescription)
-                locationModel.save()
-                LocationVersioning(action = "CREATED", locationModel = locationModel, user=response.user)
-                return render(response, 'location_details.html', {'location':locationModel})
             
             else:
                 locationModel = Locations(name=locationName, 
                                         description = locationDescription,
                                         parentLocation = parentLocation)
-                locationModel.save()
-                LocationVersioning(action = "CREATED", locationModel = locationModel, user=response.user)
-                return HttpResponse('')
+            
+            locationModel.save()
+            LocationVersioning(action = "CREATED", locationModel = locationModel, user=response.user)
+            return render(response, 'location_details.html', {'location':locationModel})
 
 def DeleteLocationHTMX(response, id):
     locationModel = Locations.objects.get(id=id)

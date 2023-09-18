@@ -72,16 +72,12 @@ def CreateStock(response):
 
         if form.is_valid():
 
-            stockBatchCode = form.cleaned_data['batchCode']
-            stockQuantity = form.cleaned_data['quantity']
-            stockLocation = form.cleaned_data['locationId']
-            stockItemID = form.cleaned_data['itemId']
-
-            stockModel = Stock(batchCode = stockBatchCode,
-                            quantity= stockQuantity,
-                            hasBatchCode = stockBatchCode != "",
-                            locationId= stockLocation,
-                            itemId= stockItemID)
+            stockModel = Stock(batchCode = form.cleaned_data['batchCode'],
+                            quantity= form.cleaned_data['quantity'],
+                            hasBatchCode = form.cleaned_data['batchCode'] != "",
+                            locationId= form.cleaned_data['locationId'],
+                            itemId= form.cleaned_data['itemId'],
+                            price = form.cleaned_data['itemId'].price)
             
             stockModel.save()
             StockVersioning(action = "CREATED", stockModel = stockModel, user=response.user)
@@ -115,16 +111,12 @@ def EditStock(response,id):
             form = CreateNewItemStock(response.POST, parentItem=0)
             if form.is_valid():
 
-                stockBatchCode = form.cleaned_data['batchCode']
-                stockQuantity = form.cleaned_data['quantity']
-                stockLocationId = form.cleaned_data['locationId']
-                stockItemId = form.cleaned_data['itemId']
-
-                stockModel.batchCode = stockBatchCode
-                stockModel.hasBatchCode = (stockModel.batchCode != "")
-                stockModel.quantity = stockQuantity
-                stockModel.locationId = stockLocationId
-                stockModel.itemId = stockItemId
+                stockModel.batchCode = form.cleaned_data['batchCode']
+                stockModel.hasBatchCode = (form.cleaned_data['batchCode'] != "")
+                stockModel.quantity = form.cleaned_data['quantity']
+                stockModel.locationId = form.cleaned_data['locationId']
+                stockModel.itemId = form.cleaned_data['itemId']
+                stockModel.price = form.cleaned_data['itemId'].price
                 stockModel.save()
 
                 StockVersioning(action = "EDITED", stockModel = stockModel, user=response.user)
@@ -141,7 +133,7 @@ def EditStock(response,id):
         
         return render(response, 'editStock.html', {'form':form,
                                                    'projects' : projects,
-                                                    'projectform' : projectform})
+                                                   'projectform' : projectform})
     
 
 def CreateStockHTMX(response):
@@ -150,16 +142,12 @@ def CreateStockHTMX(response):
         form = CreateNewItemStock(response.POST, parentItem=0)
         if form.is_valid():
 
-            stockBatchCode = form.cleaned_data['batchCode']
-            stockQuantity = form.cleaned_data['quantity']
-            stockLocationId = form.cleaned_data['locationId']
-            stockItemId = form.cleaned_data['itemId']
-
-            stockModel = Stock(batchCode = stockBatchCode,
-                        quantity= stockQuantity,
-                        hasBatchCode = stockBatchCode != "",
-                        locationId= stockLocationId,
-                        itemId= stockItemId)
+            stockModel = Stock(batchCode = form.cleaned_data['batchCode'],
+                        quantity= form.cleaned_data['quantity'],
+                        hasBatchCode = form.cleaned_data['batchCode'] != "",
+                        locationId= form.cleaned_data['locationId'],
+                        itemId= form.cleaned_data['itemId'],
+                        price = form.cleaned_data['itemId'].price)
     
             stockModel.save()
             StockVersioning(action = "CREATED", stockModel = stockModel, user=response.user)
@@ -167,8 +155,8 @@ def CreateStockHTMX(response):
             removeQuantityStockform = RemoveStockQuantity()
             addQuantityStockform = AddStockQuantity()
             return render(response, 'stock_details.html', {'stock':stockModel,
-                                                        'removeQuantityStockform':removeQuantityStockform,
-                                                        'addQuantityStockform':addQuantityStockform})
+                                                            'removeQuantityStockform':removeQuantityStockform,
+                                                            'addQuantityStockform':addQuantityStockform})
 
 def DeleteStockHTMX(response, id):
     stockModel = Stock.objects.get(id=id)
@@ -237,6 +225,7 @@ def StockVersioning(action = None, stockModel = None, user=None):
         hasBatchCode = stockModel.hasBatchCode,
         locationId = stockModel.locationId,
         itemId = stockModel.itemId,
+        price = stockModel.price,
 
         lastAction = action,
         lastEditedUserSignature = esignature)

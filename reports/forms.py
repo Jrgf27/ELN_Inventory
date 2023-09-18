@@ -73,6 +73,14 @@ class AllowEditForm(forms.Form):
                                     required=True, 
                                     label='Editor')
 
+class ReviewerForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        userId = kwargs.pop('userId')
+        super(ReviewerForm, self).__init__(*args, **kwargs)
+
+        self.fields['newReviewer'] = forms.ModelChoiceField(queryset=User.objects.exclude(is_active=False).exclude(id=userId),
+                                    required=True, 
+                                    label='Reviewer')
 
 class AttachFilesToReport(forms.Form):
     def __init__(self, *args, **kwargs):

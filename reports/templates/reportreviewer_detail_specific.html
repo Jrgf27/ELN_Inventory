@@ -1,0 +1,20 @@
+<div hx-target="this" hx-swap="outerHTML">
+    {{ reviewer }}
+    
+    {% if reviewer.reviewDecision == "ACCEPTED" %}
+        Accepted Report
+    {% elif reviewer.reviewDecision == "DECLINED"%}
+        Declined Report
+    {% else %}
+        {% if user == reviewer.reviewer %}
+            <button type="button" class="btn btn-success btn-sm" hx-post="{% url 'decisionReportReview' reviewer.id 1 %}">
+                Accept
+            </button>
+            <button type="button" class="btn btn-danger btn-sm" hx-post="{% url 'decisionReportReview' reviewer.id 0 %}">
+                Decline
+            </button>
+        {% else %}
+            Awaiting Review
+        {% endif %}
+    {% endif %}
+</div>

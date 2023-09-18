@@ -256,16 +256,12 @@ def EditSupplierItem(response,id):
             form = CreateNewSupplierItem(response.POST, parentSupplier =0)
             if form.is_valid():
 
-                supplierItemWebsite = form.cleaned_data['website']
-                supplierItemProductCode = form.cleaned_data['supplierProductCode']
-                supplierItemSupplierId = form.cleaned_data['supplierId']
-                supplierItemItemId = form.cleaned_data['itemId']
-
                 supplierItemModel = SuppliersItems.objects.get(id=id)
-                supplierItemModel.website = supplierItemWebsite
-                supplierItemModel.supplierProductCode = supplierItemProductCode
-                supplierItemModel.supplierId = supplierItemSupplierId
-                supplierItemModel.itemId = supplierItemItemId
+                supplierItemModel.website = form.cleaned_data['website']
+                supplierItemModel.supplierProductCode = form.cleaned_data['supplierProductCode']
+                supplierItemModel.supplierId = form.cleaned_data['supplierId']
+                supplierItemModel.itemId = form.cleaned_data['itemId']
+                supplierItemModel.price = form.cleaned_data['price']
 
                 supplierItemModel.save()
                 SupplierItemVersioning(action = "EDITED", supplierItemModel = supplierItemModel, user=response.user)
@@ -277,7 +273,8 @@ def EditSupplierItem(response,id):
         form = CreateNewSupplierItem(initial={'supplierId' : supplierItemObject.supplierId,
                                         'website' : supplierItemObject.website,
                                         'supplierProductCode' : supplierItemObject.supplierProductCode,
-                                        'itemId' : supplierItemObject.itemId},
+                                        'itemId' : supplierItemObject.itemId,
+                                        'price':supplierItemModel.price},
                                         parentSupplier =0)
         
         return render(response, 'editSupplier.html', {'form':form})
@@ -297,6 +294,7 @@ def SupplierItemVersioning(action = None, supplierItemModel = None, user=None):
         supplierProductCode = supplierItemModel.supplierProductCode,
         supplierId = supplierItemModel.supplierId,
         itemId = supplierItemModel.itemId,
+        price = supplierItemModel.price,
 
         lastAction = action,
         lastEditedUserSignature = esignature)
@@ -312,11 +310,12 @@ def CreateSupplierItemHTMX(response):
             supplierItemProductCode =  response.POST.get('supplierProductCode')
             supplierItemSupplierId = Suppliers.objects.get(id=response.POST.get('supplierId'))
             supplierItemItemId = Items.objects.get(id=response.POST.get('itemId'))
-
+            
             supplierItemModel = SuppliersItems(website = supplierItemWebsite,
                                     supplierProductCode= supplierItemProductCode,
                                     supplierId= supplierItemSupplierId,
-                                    itemId= supplierItemItemId)
+                                    itemId= supplierItemItemId,
+                                    price = response.POST.get('price'))
             supplierItemModel.save()
             SupplierItemVersioning(action = "CREATED", supplierItemModel = supplierItemModel, user=response.user)
  

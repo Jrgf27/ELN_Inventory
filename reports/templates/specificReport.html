@@ -8,10 +8,30 @@
 
 {% extends 'baseReport.html' %}
 
+
+{% block leftSide %}
+<h5>Reviewers</h5>
+<div class="card">
+    <div class="card-body">
+        <div class="container">
+            <div class="row align-items-start">
+                <div class="col">
+                    {% for reviewer in reviewerList %}
+                        {% include 'reportreviewer_detail_specific.html'%}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
 {% block content %}
 
 
-{% if user in editers or user == reportInfo.owner %}
+{% if user in editors or user == reportInfo.owner %}
     <form method="post">
         {% csrf_token %}
         <button  type="submit" name="edit_report" value="True" class="btn btn-primary">Edit</button>
