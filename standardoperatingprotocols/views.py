@@ -155,50 +155,6 @@ class EditSOP(TemplateView):
                 SOPVersioning(action = 'EDITED', SOPModel = SOPModel, user=response.user)
                 return redirect ("specificSOP", id)
 
-        if response.POST.get('newTrainer'):
-            form = TrainerForm(response.POST,response.FILES)
-            if form.is_valid():
-                newTrainer = User.objects.get(id = response.POST.get('newTrainer'))
-                if newTrainer in SOPModel.trainer.all():
-                    return redirect('create-SOPTrainer-form', id)
-                    
-                SOPModel.trainer.add(newTrainer)
-                SOPVersioning(action = "ADDED_TRAINER", SOPModel = SOPModel, user=response.user)
-                return redirect('specificSOPTrainer',SOPModel.id, response.POST.get('newTrainer'))
-
-        if response.POST.get('newTrainer')=="":
-            return redirect('create-SOPTrainer-form', id)
-
-        if response.POST.get('newTrainee'):
-            form = TraineeForm(response.POST,response.FILES)
-            if form.is_valid():
-                newTrainee=User.objects.get(id = response.POST.get('newTrainee'))
-                if newTrainee in SOPModel.trainee.all():
-                    return redirect('create-SOPTrainee-form', id)
-
-                SOPModel.trainee.add(newTrainee)
-                SOPVersioning(action = "ADDED_TRAINEE", SOPModel = SOPModel, user=response.user)
-                return redirect('specificSOPTrainee',SOPModel.id, response.POST.get('newTrainee'))
-
-        if response.POST.get('newTrainee')=="":
-            return redirect('create-SOPTrainee-form', id)
-
-        if response.FILES.get('attachedFile'):
-            
-            form = AttachFilesToSOP(response.POST, response.FILES)
-            if form.is_valid():
-                SOPAttachmentsModelNew = SOPAttachments(
-                    file = response.FILES['attachedFile'])
-
-                SOPAttachmentsModelNew.save()
-                SOPModel.linkedAttachment.add(SOPAttachmentsModelNew)
-                SOPVersioning(action = "ADDED_ATTACHMENT", SOPModel = SOPModel, user=response.user)
-                return redirect('specificAttachment_SOP', SOPModel.id, SOPAttachmentsModelNew.id)
-
-        if not response.FILES:
-            form = AttachFilesToSOP()
-            return redirect('create-attachment-form_SOP',id)
-
 def SOPVersioning(action = None, SOPModel = None, user=None):
     timestamper = TimestampSigner()
     esignature = timestamper.sign_object({
@@ -219,15 +175,33 @@ def SOPVersioning(action = None, SOPModel = None, user=None):
     newversion.trainer.set(SOPModel.trainer.all())
     newversion.trainee.set(SOPModel.trainee.all())
 
-@login_required
-def CreateAttachmentForm(response, id):
-    if response.method == 'GET':
+@method_decorator(login_required, name='dispatch')
+class CreateAttachmentForm(TemplateView):
+    template_name = 'attachedFiles_SOP_form.html'
+
+    def get_context_data(self,id):
+        context = super().get_context_data()
         form = AttachFilesToSOP()
-        return render(response, 'attachedFiles_form.html', {
-            'form':form,
-            'reportId':id})
-    else:
-        return HttpResponse('')
+        context['form']=form
+        context['SOPId']=id
+        return context
+    
+    def post(self, response, id):
+        SOPModel = SOP.objects.get(id=id)
+        if response.FILES.get('attachedFile'):
+            form = AttachFilesToSOP(response.POST, response.FILES)
+            if form.is_valid():
+                SOPAttachmentsModelNew = SOPAttachments(
+                    file = response.FILES['attachedFile'])
+
+                SOPAttachmentsModelNew.save()
+                SOPModel.linkedAttachment.add(SOPAttachmentsModelNew)
+                SOPVersioning(action = "ADDED_ATTACHMENT", SOPModel = SOPModel, user=response.user)
+                return redirect('specificAttachment_SOP', SOPModel.id, SOPAttachmentsModelNew.id)
+
+        if not response.FILES:
+            form = AttachFilesToSOP()
+            return redirect('create-attachment-form_SOP',id)
 
 @login_required
 def SpecificAttachment(response, id, attachmentId):
@@ -250,17 +224,33 @@ def DeleteAttachment(response, id, attachmentId):
         SOPVersioning(action = "DELETED_ATTACHMENT", SOPModel = SOPModel, user=response.user)
     return HttpResponse('')
 
-@login_required
-def CreateSOPTrainerForm(response, id):
-    if response.method == 'GET':
-        form = TrainerForm()
-        return render(response, 'SOPtrainer_form.html', {
-            'form':form,
-            'SOPId':id
-            })
-    else:
-        return HttpResponse('')
+@method_decorator(login_required, name='dispatch')
+class CreateSOPTrainerForm(TemplateView):
+    template_name = 'SOPtrainer_form.html'
 
+    def get_context_data(self,id):
+        context = super().get_context_data()
+        form = TrainerForm()
+        context['form']=form
+        context['SOPId']=id
+        return context
+
+    def post(self,response,id):
+        SOPModel = SOP.objects.get(id=id)
+        if response.POST.get('newTrainer'):
+            form = TrainerForm(response.POST,response.FILES)
+            if form.is_valid():
+                newTrainer = User.objects.get(id = response.POST.get('newTrainer'))
+                if newTrainer in SOPModel.trainer.all():
+                    return redirect('create-SOPTrainer-form', id)
+                    
+                SOPModel.trainer.add(newTrainer)
+                SOPVersioning(action = "ADDED_TRAINER", SOPModel = SOPModel, user=response.user)
+                return redirect('specificSOPTrainer',SOPModel.id, response.POST.get('newTrainer'))
+
+        if response.POST.get('newTrainer')=="":
+            return redirect('create-SOPTrainer-form', id)
+    
 @login_required
 def SpecificSOPTrainer(response, SOPId, userId):
     if response.method == 'GET':
@@ -282,16 +272,32 @@ def DeleteSOPTrainer(response, SOPId, userId):
         SOPVersioning(action = "REMOVED_TRAINER", SOPModel = SOPModel, user=response.user)
     return HttpResponse('')
 
-@login_required
-def CreateSOPTraineeForm(response, id):
-    if response.method == 'GET':
+@method_decorator(login_required, name='dispatch')
+class CreateSOPTraineeForm(TemplateView):
+    template_name = 'SOPtrainee_form.html'
+    
+    def get_context_data(self,id):
+        context = super().get_context_data()
         form = TraineeForm()
-        return render(response, 'SOPtrainee_form.html', {
-            'form':form,
-            'SOPId':id
-            })
-    else:
-        return HttpResponse('')
+        context['form']=form
+        context['SOPId']=id
+        return context
+
+    def post(self, response, id):
+        SOPModel = SOP.objects.get(id=id)
+        if response.POST.get('newTrainee'):
+            form = TraineeForm(response.POST,response.FILES)
+            if form.is_valid():
+                newTrainee=User.objects.get(id = response.POST.get('newTrainee'))
+                if newTrainee in SOPModel.trainee.all():
+                    return redirect('create-SOPTrainee-form', id)
+
+                SOPModel.trainee.add(newTrainee)
+                SOPVersioning(action = "ADDED_TRAINEE", SOPModel = SOPModel, user=response.user)
+                return redirect('specificSOPTrainee',SOPModel.id, response.POST.get('newTrainee'))
+
+        if response.POST.get('newTrainee')=="":
+            return redirect('create-SOPTrainee-form', id)
 
 @login_required
 def SpecificSOPTrainee(response, SOPId, userId):
