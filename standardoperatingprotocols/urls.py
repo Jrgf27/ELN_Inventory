@@ -2,10 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.SOPList, name = 'SOPList'),
+    path('', views.SOPList.as_view(), name = 'SOPList'),
     path('create/', views.CreateSOP, name = 'createSOP'),
-    path('<int:id>', views.SpecificSOP, name = 'specificSOP'),
-    path('edit/<int:id>', views.EditSOP, name = 'editSOP'),
+    path('<int:id>', views.SpecificSOP.as_view(), name = 'specificSOP'),
+    path('edit/<int:id>', views.EditSOP.as_view(), name = 'editSOP'),
 
     path('htmx/create-attachment-form/<int:id>', views.CreateAttachmentForm, name='create-attachment-form_SOP'),
     path('htmx/attachment/<int:id>/<int:attachmentId>', views.SpecificAttachment, name='specificAttachment_SOP'),
