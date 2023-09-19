@@ -45,14 +45,38 @@ def SpecificSOP(response, id):
         
         if response.POST.get('edit_report'):
             return HttpResponseRedirect(f"/SOPs/edit/{id}")
+        
+        if response.POST.get('newTrainee'):
+
+            for trainee in SOPModel.trainee.all():
+                print(trainee, int(response.POST.get('newTrainee')))
+                if trainee.id == int(response.POST.get('newTrainee')):
+                    form = TraineeForm()
+                    return render(response, 'SOPtrainee_form.html', {'form':form,
+                                                        'SOPId':id})
+
+            SOPModel.trainee.add(User.objects.get(id = response.POST.get('newTrainee')))
+            SOPVersioning(action = "ADDED_TRAINEE", SOPModel = SOPModel, user=response.user)
+            return redirect('specificSOPTrainee',SOPModel.id, response.POST.get('newTrainee'))
+
+        if response.POST.get('newTrainee')=="":
+            form = TraineeForm()
+            return render(response, 'SOPtrainee_form.html', {'form':form,
+                                                            'SOPId':id})
+        
+
     else:
         projects=Projects.objects.filter(isEnabled=True)
         projectform = CreateNewProject()
-        SOPAttachmentsList = SOPAttachments.objects.filter(SOP = SOPModel)
+        SOPModelAttachments = SOPModel.linkedAttachment.all()
+        trainerList = SOPModel.trainer.all()
+        traineeList = SOPModel.trainee.all()
         return render(response, 'specificSOP.html', {'SOPModel': SOPModel,
-                                                    'SOPAttachments': SOPAttachmentsList,
-                                                    'projects' : projects,
-                                                    'projectform' : projectform})
+                                                     'SOPModelAttachments':SOPModelAttachments,
+                                                     'trainerList':trainerList,
+                                                     'traineeList':traineeList,
+                                                     'projects' : projects,
+                                                     'projectform' : projectform})
 
 @login_required
 def CreateSOP(response):
@@ -97,19 +121,54 @@ def EditSOP(response,id):
                 SOPModel.save()
                 SOPVersioning(action = 'EDITED', SOPModel = SOPModel, user=response.user)
                 return HttpResponseRedirect(f"/SOPs/{id}")
-            
-        
+
+        if response.POST.get('newTrainer'):
+
+            for trainer in SOPModel.trainer.all():
+                print(trainer, int(response.POST.get('newTrainer')))
+                if trainer.id == int(response.POST.get('newTrainer')):
+                    form = TrainerForm()
+                    return render(response, 'SOPtrainer_form.html', {'form':form,
+                                                        'SOPId':id})
+
+            SOPModel.trainer.add(User.objects.get(id = response.POST.get('newTrainer')))
+            SOPVersioning(action = "ADDED_TRAINER", SOPModel = SOPModel, user=response.user)
+            return redirect('specificSOPTrainer',SOPModel.id, response.POST.get('newTrainer'))
+
+        if response.POST.get('newTrainer')=="":
+            form = TrainerForm()
+            return render(response, 'SOPtrainer_form.html', {'form':form,
+                                                        'SOPId':id})
+
+        if response.POST.get('newTrainee'):
+
+            for trainee in SOPModel.trainee.all():
+                print(trainee, int(response.POST.get('newTrainee')))
+                if trainee.id == int(response.POST.get('newTrainee')):
+                    form = TraineeForm()
+                    return render(response, 'SOPtrainee_form.html', {'form':form,
+                                                        'SOPId':id})
+
+            SOPModel.trainee.add(User.objects.get(id = response.POST.get('newTrainee')))
+            SOPVersioning(action = "ADDED_TRAINEE", SOPModel = SOPModel, user=response.user)
+            return redirect('specificSOPTrainee',SOPModel.id, response.POST.get('newTrainee'))
+
+        if response.POST.get('newTrainee')=="":
+            form = TraineeForm()
+            return render(response, 'SOPtrainee_form.html', {'form':form,
+                                                            'SOPId':id})
+
         if response.FILES.get('attachedFile'):
             
             form = AttachFilesToSOP(response.POST, response.FILES)
             if form.is_valid():
                 SOPAttachmentsModelNew = SOPAttachments(
-                    SOP = SOPModel,
                     file = response.FILES['attachedFile'])
 
                 SOPAttachmentsModelNew.save()
-                AttachmentsVersioning(action = "ADDED", attachmentsModel = SOPAttachmentsModelNew, user=response.user)
-                return redirect('specificAttachment_riskAssessment', SOPAttachmentsModelNew.id)
+                SOPModel.linkedAttachment.add(SOPAttachmentsModelNew)
+                SOPVersioning(action = "ADDED_ATTACHMENT", SOPModel = SOPModel, user=response.user)
+                return redirect('specificAttachment_SOP', SOPModel.id, SOPAttachmentsModelNew.id)
 
         if not response.FILES:
             form = AttachFilesToSOP()
@@ -119,15 +178,20 @@ def EditSOP(response,id):
     else:  
         projects=Projects.objects.filter(isEnabled=True)
         projectform = CreateNewProject()
-        SOPAttachmentsList = SOPAttachments.objects.filter(SOP = SOPModel)
 
         form = CreateNewSOP(initial={'title':SOPModel.title,
-                                    'reportBody':SOPModel.documentBody}
-        )
+                                    'reportBody':SOPModel.documentBody})
+        SOPModelAttachments = SOPModel.linkedAttachment.all()
+        trainerList = SOPModel.trainer.all()
+        traineeList = SOPModel.trainee.all()
+        
+
         return render(response, 'editSOP.html', 
                         {'form':form,
                         'SOPModel': SOPModel,
-                        'SOPAttachments': SOPAttachmentsList,
+                        'SOPModelAttachments':SOPModelAttachments,
+                        'trainerList':trainerList,
+                        'traineeList':traineeList,
                         'id':id,
                         'projects' : projects,
                         'projectform' : projectform})
@@ -147,6 +211,9 @@ def SOPVersioning(action = None, SOPModel = None, user=None):
                                 lastAction = action,
                                 lastEditedUserSignature = esignature)
     newversion.save()
+    newversion.linkedAttachment.set(SOPModel.linkedAttachment.all())
+    newversion.trainer.set(SOPModel.trainer.all())
+    newversion.trainee.set(SOPModel.trainee.all())
 
 
 def CreateAttachmentForm(response, id):
@@ -154,28 +221,53 @@ def CreateAttachmentForm(response, id):
     return render(response, 'attachedFiles_form.html', {'form':form,
                                                         'reportId':id})
 
-def SpecificAttachment(response, id):
-    SOPAttachmentModel = SOPAttachments.objects.get(id=id)
-    return render(response, 'attachedFiles_detail.html', {'attachedFile':SOPAttachmentModel})
+def SpecificAttachment(response, id, attachmentId):
+    SOPModel = SOP.objects.get(id=id)
+    SOPAttachmentModel = SOPModel.linkedAttachment.get(id=attachmentId)
+    return render(response, 'attachedFiles_SOP_details.html', {'linkedAttachment':SOPAttachmentModel,
+                                                          'SOPModel':SOPModel})
 
-def DeleteAttachment(response, id):
-    SOPAttachmentModel = SOPAttachments.objects.get(id=id)
-    AttachmentsVersioning(action = "DELETED", attachmentsModel = SOPAttachmentModel, user=response.user)
-    SOPAttachmentModel.delete()
+def DeleteAttachment(response, id, attachmentId):
+    SOPModel = SOP.objects.get(id=id)
+    SOPAttachmentModel = SOPModel.linkedAttachment.get(id=attachmentId)
+    SOPModel.linkedAttachment.remove(SOPAttachmentModel)
+    SOPVersioning(action = "DELETED_ATTACHMENT", SOPModel = SOPModel, user=response.user)
     return HttpResponse('')
 
-def AttachmentsVersioning(action = None, attachmentsModel = None, user=None):
-    timestamper = TimestampSigner()
-    esignature = timestamper.sign_object({
-        "ID":user.id, 
-        "Username":user.username,
-        "Email": user.email,
-        "FirstName": user.first_name,
-        "LastName": user.last_name,
-        "TimeOfSignature": str(timezone.now())})
-    newVersion = SOPAttachments_Versions(SOPAttachmentsId = attachmentsModel,
-                                            SOP = attachmentsModel.SOP,
-                                            fileName = attachmentsModel.file.name,
-                                            lastAction = action,
-                                            lastEditedUserSignature = esignature)
-    newVersion.save()
+
+def CreateSOPTrainerForm(response, id):
+    form = TrainerForm()
+    return render(response, 'SOPtrainer_form.html', {'form':form,
+                                                   'SOPId':id})
+
+def SpecificSOPTrainer(response, SOPId, userId):
+    SOPModel = SOP.objects.get(id=SOPId)
+    trainerModel= SOPModel.trainer.get(id=userId)
+    return render(response, 'SOPtrainer_detail.html', {'SOPModel':SOPModel,
+                                                        'trainer': trainerModel})
+
+def DeleteSOPTrainer(response, SOPId, userId):
+    SOPModel = SOP.objects.get(id=SOPId)
+    trainerModel = User.objects.get(id=userId)
+    SOPModel.trainer.remove(trainerModel)
+    SOPVersioning(action = "REMOVED_TRAINER", SOPModel = SOPModel, user=response.user)
+    return HttpResponse('')
+
+
+def CreateSOPTraineeForm(response, id):
+    form = TraineeForm()
+    return render(response, 'SOPtrainee_form.html', {'form':form,
+                                                   'SOPId':id})
+
+def SpecificSOPTrainee(response, SOPId, userId):
+    SOPModel = SOP.objects.get(id=SOPId)
+    traineeModel= SOPModel.trainee.get(id=userId)
+    return render(response, 'SOPtrainee_detail.html', {'SOPModel':SOPModel,
+                                                        'trainee': traineeModel})
+
+def DeleteSOPTrainee(response, SOPId, userId):
+    SOPModel = SOP.objects.get(id=SOPId)
+    traineeModel = User.objects.get(id=userId)
+    SOPModel.trainee.remove(traineeModel)
+    SOPVersioning(action = "REMOVED_TRAINEE", SOPModel = SOPModel, user=response.user)
+    return HttpResponse('')

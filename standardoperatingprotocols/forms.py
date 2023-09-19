@@ -13,3 +13,20 @@ class AttachFilesToSOP(forms.Form):
         super(AttachFilesToSOP, self).__init__(*args, **kwargs)
 
         self.fields['attachedFile'] = forms.FileField(label='Select a file', required=False)
+
+
+class TrainerForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(TrainerForm, self).__init__(*args, **kwargs)
+
+        self.fields['newTrainer'] = forms.ModelChoiceField(queryset=User.objects.exclude(is_active=False),
+                                    required=True, 
+                                    label='Trainer')
+        
+class TraineeForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(TraineeForm, self).__init__(*args, **kwargs)
+
+        self.fields['newTrainee'] = forms.ModelChoiceField(queryset=User.objects.exclude(is_active=False),
+                                    required=True, 
+                                    label='Trainee')
