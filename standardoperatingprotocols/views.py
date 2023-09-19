@@ -12,6 +12,25 @@ from .models import *
 from projects.models import Projects
 from projects.forms import CreateNewProject
 
+def SOPVersioning(action = None, SOPModel = None, user=None):
+    timestamper = TimestampSigner()
+    esignature = timestamper.sign_object({
+        "ID":user.id, 
+        "Username":user.username,
+        "Email": user.email,
+        "FirstName": user.first_name,
+        "LastName": user.last_name,
+        "TimeOfSignature": str(timezone.now())})
+    newversion = SOP_Versions(  
+        SOP = SOPModel,
+        title = SOPModel.title,
+        documentBody = SOPModel.documentBody,
+        lastAction = action,
+        lastEditedUserSignature = esignature)
+    newversion.save()
+    newversion.linkedAttachment.set(SOPModel.linkedAttachment.all())
+    newversion.trainer.set(SOPModel.trainer.all())
+    newversion.trainee.set(SOPModel.trainee.all())
 
 # Create your views here.
 
@@ -155,28 +174,8 @@ class EditSOP(TemplateView):
                 SOPVersioning(action = 'EDITED', SOPModel = SOPModel, user=response.user)
                 return redirect ("specificSOP", id)
 
-def SOPVersioning(action = None, SOPModel = None, user=None):
-    timestamper = TimestampSigner()
-    esignature = timestamper.sign_object({
-        "ID":user.id, 
-        "Username":user.username,
-        "Email": user.email,
-        "FirstName": user.first_name,
-        "LastName": user.last_name,
-        "TimeOfSignature": str(timezone.now())})
-    newversion = SOP_Versions(  
-        SOP = SOPModel,
-        title = SOPModel.title,
-        documentBody = SOPModel.documentBody,
-        lastAction = action,
-        lastEditedUserSignature = esignature)
-    newversion.save()
-    newversion.linkedAttachment.set(SOPModel.linkedAttachment.all())
-    newversion.trainer.set(SOPModel.trainer.all())
-    newversion.trainee.set(SOPModel.trainee.all())
-
 @method_decorator(login_required, name='dispatch')
-class CreateAttachmentForm(TemplateView):
+class CreateAttachment(TemplateView):
     template_name = 'attachedFiles_SOP_form.html'
 
     def get_context_data(self,id):
@@ -225,7 +224,7 @@ def DeleteAttachment(response, id, attachmentId):
     return HttpResponse('')
 
 @method_decorator(login_required, name='dispatch')
-class CreateSOPTrainerForm(TemplateView):
+class CreateSOPTrainer(TemplateView):
     template_name = 'SOPtrainer_form.html'
 
     def get_context_data(self,id):
@@ -273,9 +272,9 @@ def DeleteSOPTrainer(response, SOPId, userId):
     return HttpResponse('')
 
 @method_decorator(login_required, name='dispatch')
-class CreateSOPTraineeForm(TemplateView):
+class CreateSOPTrainee(TemplateView):
     template_name = 'SOPtrainee_form.html'
-    
+
     def get_context_data(self,id):
         context = super().get_context_data()
         form = TraineeForm()
