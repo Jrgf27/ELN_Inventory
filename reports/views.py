@@ -211,7 +211,7 @@ def CreateReport(response, projectname):
 class EditReport(TemplateView):
     template_name='editReport.html'
 
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         reportInfo = Reports.objects.get(id=context['id'])
     
