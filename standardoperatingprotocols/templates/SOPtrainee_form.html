@@ -5,7 +5,7 @@
         <form method="POST">
                 {% csrf_token %}
                 {{ form|crispy }}
-                <button hx-post="{% url 'create-SOPTrainee-form' SOPId %}" class="btn btn-success btn-sm">
+                <button hx-post="{% url 'create-SOPTrainee-form' documentId %}" class="btn btn-success btn-sm">
                         Save
                 </button>
         </form>
