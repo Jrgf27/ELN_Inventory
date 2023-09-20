@@ -14,6 +14,8 @@ from stock.models import Stock
 from projects.models import Projects
 from projects.forms import CreateNewProject
 
+from htmxspecific.views import *
+
 def ReportVersioning(action = None, reportModel = None, user=None):
     timestamper = TimestampSigner()
     esignature = timestamper.sign_object({
@@ -63,46 +65,6 @@ def ReportReviewingVersioning(action = None, reviewerModel = None, user=None):
         lastAction = action,
         lastEditedUserSignature = esignature,)
     reviewerVersionModel.save()
-
-def HTMXGetViews(context, form):
-    return {
-        'form':form,
-        'reportId':context['id']
-        }
-
-def HTMXGetSpecificViews(response, reportModel,modelId,detailView,linkedModelManager, htmlModelName):
-    if response.method == 'GET':
-        reportReagentsModel = linkedModelManager.get(id=modelId)
-        return render(response, detailView, {
-            'reportInfo':reportModel,
-            htmlModelName:reportReagentsModel})
-    else:
-        return HttpResponse('')
-
-def HTMXPostViews(reportInfo,
-                  linkedModelManager, 
-                  response, 
-                  formOption,
-                  versioningAction,
-                  specificRedirect,
-                  formRedirect,
-                  modelUsed,
-                  ):
-
-    if response.POST.get(formOption):
-            model = modelUsed.objects.get(id=response.POST.get(formOption))
-            linkedModelManager.add(model)
-            ReportVersioning(action = versioningAction, reportModel = reportInfo, user=response.user)
-            return redirect(specificRedirect,reportInfo.id, model.id)
-        
-    if response.POST.get(formOption) == "":
-        return redirect(formRedirect, reportInfo.id)
-
-def HTMXDeleteViews(response, reportModel,linkedModelManager,modelUsed,modelId, versioningAction):
-    if response.method == 'POST':
-        linkedModelManager.remove(modelUsed.objects.get(id=modelId))
-        ReportVersioning(action = versioningAction, reportModel = reportModel, user=response.user)
-    return HttpResponse('')
 
 # Create your views here.
 @method_decorator(login_required, name='dispatch')
@@ -293,7 +255,8 @@ class CreateReagents(TemplateView):
                             'ADDED_REAGENT',
                             'specificReagent',
                             'create-reagents-form',
-                            Stock
+                            Stock,
+                            ReportVersioning
                             )
 
 @login_required
@@ -305,7 +268,8 @@ def SpecificReagent(response, id, stockId):
         stockId,
         'reagents_detail.html',
         reportModel.linkedReagents,
-        'reagent'
+        'reagent',
+        'reportInfo'
     )
 
 @login_required
@@ -317,7 +281,8 @@ def DeleteReagent(response, id, stockId):
         reportModel.linkedReagents,
         Stock,
         stockId,
-        "REMOVED_REAGENT")
+        "REMOVED_REAGENT",
+        ReportVersioning)
 
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedReport(TemplateView):
@@ -335,7 +300,8 @@ class CreateLinkedReport(TemplateView):
                             'ADDED_REPORT',
                             'specificLinkedReport',
                             'create-linkedreports-form',
-                            Reports
+                            Reports,
+                            ReportVersioning
                             )
 
 @login_required
@@ -347,7 +313,8 @@ def SpecificLinkedReport(response, id, linkedreportId):
         linkedreportId,
         'linkedreport_detail.html',
         reportModel.linkedReports,
-        'linkedReport'
+        'linkedReport',
+        'reportInfo'
     )
 
 @login_required
@@ -359,7 +326,8 @@ def DeleteLinkedReport(response, id, linkedreportId):
         reportModel.linkedReports,
         Reports,
         linkedreportId,
-        "REMOVED_REPORT")
+        "REMOVED_REPORT",
+        ReportVersioning)
 
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedSOP(TemplateView):
@@ -377,7 +345,8 @@ class CreateLinkedSOP(TemplateView):
                             'ADDED_SOP',
                             'specificLinkedSOP',
                             'create-linkedsops-form',
-                            SOP
+                            SOP,
+                            ReportVersioning
                             )
 
 @login_required
@@ -389,7 +358,8 @@ def SpecificLinkedSOP(response, id, linkedsopId):
         linkedsopId,
         'linkedsop_detail.html',
         reportModel.linkedSOPs,
-        'linkedSOP'
+        'linkedSOP',
+        'reportInfo'
     )
 
 @login_required
@@ -402,7 +372,8 @@ def DeleteLinkedSOP(response, id, linkedsopId):
         reportModel.linkedSOPs,
         SOP,
         linkedsopId,
-        "REMOVED_SOP")
+        "REMOVED_SOP",
+        ReportVersioning)
 
 @method_decorator(login_required, name='dispatch')
 class CreateAttachment(TemplateView):
@@ -435,7 +406,8 @@ def SpecificAttachment(response, id, attachmentId):
         attachmentId,
         'attachedFiles_detail.html',
         reportModel.linkedAttachment,
-        'linkedAttachment'
+        'linkedAttachment',
+        'reportInfo'
     )
 
 @login_required
@@ -447,7 +419,8 @@ def DeleteAttachment(response, id, attachmentId):
         reportModel.linkedAttachment,
         ReportsAttachments,
         attachmentId,
-        "REMOVED_ATTACHMENT")
+        "REMOVED_ATTACHMENT",
+        ReportVersioning)
 
 @method_decorator(login_required, name='dispatch')
 class CreateTag(TemplateView):
@@ -460,7 +433,7 @@ class CreateTag(TemplateView):
             form = AttachTagToReport()
         context= {
             'form':form,
-            'reportId':context['id']}
+            'documentId':context['id']}
         return context
 
     def post(self, response, id, new):
@@ -498,7 +471,8 @@ def SpecificTag(response, reportId, tagId):
         tagId,
         'tag_detail.html',
         reportModel.reportTags,
-        'tag'
+        'tag',
+        'reportInfo'
     )
 
 @login_required
@@ -510,7 +484,8 @@ def DeleteTagFromReport(response, reportId, tagId):
         reportModel.reportTags,
         Tags,
         tagId,
-        "REMOVED_TAG")
+        "REMOVED_TAG",
+        ReportVersioning)
 
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedSample(TemplateView):
@@ -528,7 +503,8 @@ class CreateLinkedSample(TemplateView):
                             'ADDED_SAMPLE',
                             'specificLinkedSample',
                             'create-linkedSamples-form',
-                            Sample
+                            Sample,
+                            ReportVersioning
                             )
 
 @login_required
@@ -540,7 +516,8 @@ def SpecificLinkedSample(response, id, sampleId):
         sampleId,
         'linkedsamples_detail.html',
         reportModel.linkedSamples,
-        'linkedSample'
+        'linkedSample',
+        'reportInfo'
     )
 
 @login_required
@@ -552,7 +529,8 @@ def DeleteLinkedSample(response, id, sampleId):
         reportModel.linkedSamples,
         Sample,
         sampleId,
-        "REMOVED_SAMPLE")
+        "REMOVED_SAMPLE",
+        ReportVersioning)
 
 @method_decorator(login_required, name='dispatch')
 class CreateEquipment(TemplateView):
@@ -570,7 +548,8 @@ class CreateEquipment(TemplateView):
                             'ADDED_EQUIPMENT',
                             'specificLinkedEquipment',
                             'create-linkedEquipment-form',
-                            Equipment
+                            Equipment,
+                            ReportVersioning
                             )
 
 @login_required
@@ -582,7 +561,8 @@ def SpecificLinkedEquipment(response, id, equipmentId):
         equipmentId,
         'linkedequipment_detail.html',
         reportModel.linkedEquipments,
-        'linkedEquipment'
+        'linkedEquipment',
+        'reportInfo'
     )
 
 @login_required
@@ -594,7 +574,8 @@ def DeleteLinkedEquipment(response, id, equipmentId):
         reportModel.linkedEquipments,
         Equipment,
         equipmentId,
-        "REMOVED_EQUIPMENT")
+        "REMOVED_EQUIPMENT",
+        ReportVersioning)
 
 @method_decorator(login_required, name='dispatch')
 class CreateReportEditor(TemplateView):
@@ -612,7 +593,8 @@ class CreateReportEditor(TemplateView):
                             'ADDED_EDITOR',
                             'specificReportEditor',
                             'create-reporteditor-form',
-                            User
+                            User,
+                            ReportVersioning
                             )
 
 @login_required       
@@ -624,7 +606,8 @@ def SpecificReportEditor(response, reportId, userId):
         userId,
         'reporteditor_detail.html',
         reportModel.canEditUsers,
-        'editor'
+        'editor',
+        'reportInfo'
     )
 
 @login_required
@@ -636,7 +619,8 @@ def DeleteReportEditor(response, reportId, userId):
         reportModel.canEditUsers,
         User,
         userId,
-        "REMOVED_EDITOR")
+        "REMOVED_EDITOR",
+        ReportVersioning)
 
 @method_decorator(login_required, name='dispatch')
 class CreateReportReviewer(TemplateView):
@@ -678,7 +662,8 @@ def SpecificReportReviewer(response, reportId, userId):
         userId,
         'reportreviewer_detail.html',
         reportModel.reportReviewers,
-        'reviewer'
+        'reviewer',
+        'reportInfo'
     )
 
 @login_required

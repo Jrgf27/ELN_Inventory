@@ -12,6 +12,8 @@ from .models import *
 from projects.models import Projects
 from projects.forms import CreateNewProject
 
+from htmxspecific.views import *
+
 def SOPVersioning(action = None, SOPModel = None, user=None):
     timestamper = TimestampSigner()
     esignature = timestamper.sign_object({
@@ -178,12 +180,9 @@ class EditSOP(TemplateView):
 class CreateAttachment(TemplateView):
     template_name = 'attachedFiles_SOP_form.html'
 
-    def get_context_data(self,id):
-        context = super().get_context_data()
-        form = AttachFilesToSOP()
-        context['form']=form
-        context['SOPId']=id
-        return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return HTMXGetViews(context,AttachFilesToSOP())
     
     def post(self, response, id):
         SOPModel = SOP.objects.get(id=id)
@@ -204,35 +203,36 @@ class CreateAttachment(TemplateView):
 
 @login_required
 def SpecificAttachment(response, id, attachmentId):
-    if response.method == 'GET':
-        SOPModel = SOP.objects.get(id=id)
-        SOPAttachmentModel = SOPModel.linkedAttachment.get(id=attachmentId)
-        return render(response, 'attachedFiles_SOP_details.html', {
-            'linkedAttachment':SOPAttachmentModel,
-            'SOPModel':SOPModel
-            })
-    else:
-        return HttpResponse('')
+    SOPModel = SOP.objects.get(id=id)
+    return HTMXGetSpecificViews(
+        response,
+        SOPModel,
+        attachmentId,
+        'attachedFiles_SOP_details.html',
+        SOPModel.linkedAttachment,
+        'linkedAttachment',
+        'SOPModel'
+    )
 
 @login_required
 def DeleteAttachment(response, id, attachmentId):
-    if response.method == 'POST':
-        SOPModel = SOP.objects.get(id=id)
-        SOPAttachmentModel = SOPModel.linkedAttachment.get(id=attachmentId)
-        SOPModel.linkedAttachment.remove(SOPAttachmentModel)
-        SOPVersioning(action = "DELETED_ATTACHMENT", SOPModel = SOPModel, user=response.user)
-    return HttpResponse('')
+    SOPModel = SOP.objects.get(id=id)
+    return HTMXDeleteViews(
+        response,
+        SOPModel,
+        SOPModel.linkedAttachment,
+        SOPAttachments,
+        attachmentId,
+        "DELETED_ATTACHMENT",
+        SOPVersioning)
 
 @method_decorator(login_required, name='dispatch')
 class CreateSOPTrainer(TemplateView):
     template_name = 'SOPtrainer_form.html'
 
-    def get_context_data(self,id):
-        context = super().get_context_data()
-        form = TrainerForm()
-        context['form']=form
-        context['SOPId']=id
-        return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data( **kwargs)
+        return HTMXGetViews(context,TrainerForm())
 
     def post(self,response,id):
         SOPModel = SOP.objects.get(id=id)
@@ -252,35 +252,36 @@ class CreateSOPTrainer(TemplateView):
     
 @login_required
 def SpecificSOPTrainer(response, SOPId, userId):
-    if response.method == 'GET':
-        SOPModel = SOP.objects.get(id=SOPId)
-        trainerModel= SOPModel.trainer.get(id=userId)
-        return render(response, 'SOPtrainer_detail.html', {
-            'SOPModel':SOPModel,
-            'trainer': trainerModel
-            })
-    else:
-        return HttpResponse('')
+    SOPModel = SOP.objects.get(id=SOPId)
+    return HTMXGetSpecificViews(
+        response,
+        SOPModel,
+        userId,
+        'SOPtrainer_detail.html',
+        SOPModel.trainer,
+        'trainer',
+        'SOPModel'
+    )
 
 @login_required
 def DeleteSOPTrainer(response, SOPId, userId):
-    if response.method == 'POST':
-        SOPModel = SOP.objects.get(id=SOPId)
-        trainerModel = User.objects.get(id=userId)
-        SOPModel.trainer.remove(trainerModel)
-        SOPVersioning(action = "REMOVED_TRAINER", SOPModel = SOPModel, user=response.user)
-    return HttpResponse('')
+    SOPModel = SOP.objects.get(id=SOPId)
+    return HTMXDeleteViews(
+        response,
+        SOPModel,
+        SOPModel.trainer,
+        User,
+        userId,
+        "REMOVED_TRAINER",
+        SOPVersioning)
 
 @method_decorator(login_required, name='dispatch')
 class CreateSOPTrainee(TemplateView):
     template_name = 'SOPtrainee_form.html'
 
-    def get_context_data(self,id):
-        context = super().get_context_data()
-        form = TraineeForm()
-        context['form']=form
-        context['SOPId']=id
-        return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data( **kwargs)
+        return HTMXGetViews(context,TraineeForm())
 
     def post(self, response, id):
         SOPModel = SOP.objects.get(id=id)
@@ -300,21 +301,25 @@ class CreateSOPTrainee(TemplateView):
 
 @login_required
 def SpecificSOPTrainee(response, SOPId, userId):
-    if response.method == 'GET':
-        SOPModel = SOP.objects.get(id=SOPId)
-        traineeModel= SOPModel.trainee.get(id=userId)
-        return render(response, 'SOPtrainee_detail.html', {
-            'SOPModel':SOPModel,
-            'trainee': traineeModel
-            })
-    else:
-        return HttpResponse('')
+    SOPModel = SOP.objects.get(id=SOPId)
+    return HTMXGetSpecificViews(
+        response,
+        SOPModel,
+        userId,
+        'SOPtrainee_detail.html',
+        SOPModel.trainee,
+        'trainee',
+        'SOPModel'
+    )
 
 @login_required
 def DeleteSOPTrainee(response, SOPId, userId):
-    if response.method == 'POST':
-        SOPModel = SOP.objects.get(id=SOPId)
-        traineeModel = User.objects.get(id=userId)
-        SOPModel.trainee.remove(traineeModel)
-        SOPVersioning(action = "REMOVED_TRAINEE", SOPModel = SOPModel, user=response.user)
-    return HttpResponse('')
+    SOPModel = SOP.objects.get(id=SOPId)
+    return HTMXDeleteViews(
+        response,
+        SOPModel,
+        SOPModel.trainee,
+        User,
+        userId,
+        "REMOVED_TRAINEE",
+        SOPVersioning)
