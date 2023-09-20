@@ -280,7 +280,7 @@ class EditReport(TemplateView):
 @method_decorator(login_required, name='dispatch')
 class CreateReagents(TemplateView):
     template_name='reagents_form.html'
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         return HTMXGetViews(context,AttachReagentsToReport())
     
@@ -322,7 +322,7 @@ def DeleteReagent(response, id, stockId):
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedReport(TemplateView):
     template_name='linkedreport_form.html'
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         return HTMXGetViews(context,AttachReportsToReport())
 
@@ -364,7 +364,7 @@ def DeleteLinkedReport(response, id, linkedreportId):
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedSOP(TemplateView):
     template_name = 'linkedsop_form.html'
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         return HTMXGetViews(context,AttachSOPToReport())
     
@@ -407,7 +407,7 @@ def DeleteLinkedSOP(response, id, linkedsopId):
 @method_decorator(login_required, name='dispatch')
 class CreateAttachment(TemplateView):
     template_name='attachedFiles_form.html'
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         return HTMXGetViews(context,AttachFilesToReport())
     
@@ -452,7 +452,7 @@ def DeleteAttachment(response, id, attachmentId):
 @method_decorator(login_required, name='dispatch')
 class CreateTag(TemplateView):
     template_name = 'tag_form.html'
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         if context['new']:
             form = CreateNewTag()
@@ -515,7 +515,7 @@ def DeleteTagFromReport(response, reportId, tagId):
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedSample(TemplateView):
     template_name = 'linkedsamples_form.html'
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         return HTMXGetViews(context,AttachSamplesToReport())
     
@@ -557,7 +557,7 @@ def DeleteLinkedSample(response, id, sampleId):
 @method_decorator(login_required, name='dispatch')
 class CreateEquipment(TemplateView):
     template_name = 'linkedequipment_form.html'
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         return HTMXGetViews(context,AttachEquipmentToReport())
 
@@ -599,7 +599,7 @@ def DeleteLinkedEquipment(response, id, equipmentId):
 @method_decorator(login_required, name='dispatch')
 class CreateReportEditor(TemplateView):
     template_name = 'reporteditor_form.html'
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         return HTMXGetViews(context,AllowEditForm(userId = self.request.user.id))
     
@@ -641,7 +641,7 @@ def DeleteReportEditor(response, reportId, userId):
 @method_decorator(login_required, name='dispatch')
 class CreateReportReviewer(TemplateView):
     template_name = 'reportreviewer_form.html'
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         return HTMXGetViews(context,ReviewerForm(userId = self.request.user.id))
     
