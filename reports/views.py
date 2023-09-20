@@ -70,6 +70,15 @@ def HTMXGetViews(context, form):
         'reportId':context['id']
         }
 
+def HTMXGetSpecificViews(response, reportModel,modelId,detailView,linkedModelManager, htmlModelName):
+    if response.method == 'GET':
+        reportReagentsModel = linkedModelManager.get(id=modelId)
+        return render(response, detailView, {
+            'reportInfo':reportModel,
+            htmlModelName:reportReagentsModel})
+    else:
+        return HttpResponse('')
+
 def HTMXPostViews(reportInfo,
                   linkedModelManager, 
                   response, 
@@ -88,6 +97,12 @@ def HTMXPostViews(reportInfo,
         
     if response.POST.get(formOption) == "":
         return redirect(formRedirect, reportInfo.id)
+
+def HTMXDeleteViews(response, reportModel,linkedModelManager,modelUsed,modelId, versioningAction):
+    if response.method == 'POST':
+        linkedModelManager.remove(modelUsed.objects.get(id=modelId))
+        ReportVersioning(action = versioningAction, reportModel = reportModel, user=response.user)
+    return HttpResponse('')
 
 # Create your views here.
 @method_decorator(login_required, name='dispatch')
@@ -283,22 +298,26 @@ class CreateReagents(TemplateView):
 
 @login_required
 def SpecificReagent(response, id, stockId):
-    if response.method == 'GET':
-        reportModel = Reports.objects.get(id=id)
-        reportReagentsModel = reportModel.linkedReagents.get(id=stockId)
-        return render(response, 'reagents_detail.html', {
-            'reportInfo':reportModel,
-            'reagent':reportReagentsModel})
-    else:
-        return HttpResponse('')
+    reportModel = Reports.objects.get(id=id)
+    return HTMXGetSpecificViews(
+        response,
+        reportModel,
+        stockId,
+        'reagents_detail.html',
+        reportModel.linkedReagents,
+        'reagent'
+    )
 
 @login_required
 def DeleteReagent(response, id, stockId):
-    if response.method == 'POST':
-        reportModel = Reports.objects.get(id=id)
-        reportModel.linkedReagents.remove(Stock.objects.get(id=stockId))
-        ReportVersioning(action = "REMOVED_REAGENT", reportModel = reportModel, user=response.user)
-    return HttpResponse('')
+    reportModel = Reports.objects.get(id=id)
+    return HTMXDeleteViews(
+        response,
+        reportModel,
+        reportModel.linkedReagents,
+        Stock,
+        stockId,
+        "REMOVED_REAGENT")
 
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedReport(TemplateView):
@@ -321,22 +340,26 @@ class CreateLinkedReport(TemplateView):
 
 @login_required
 def SpecificLinkedReport(response, id, linkedreportId):
-    if response.method == 'GET':
-        reportModel = Reports.objects.get(id=id)
-        linkedReport = reportModel.linkedReports.get(id=linkedreportId)
-        return render(response, 'linkedreport_detail.html', {
-            'reportInfo':reportModel,
-            'linkedReport':linkedReport})
-    else:
-        return HttpResponse('')
+    reportModel = Reports.objects.get(id=id)
+    return HTMXGetSpecificViews(
+        response,
+        reportModel,
+        linkedreportId,
+        'linkedreport_detail.html',
+        reportModel.linkedReports,
+        'linkedReport'
+    )
 
 @login_required
 def DeleteLinkedReport(response, id, linkedreportId):
-    if response.method == 'POST':
-        reportModel = Reports.objects.get(id=id)
-        reportModel.linkedReports.remove(Reports.objects.get(id=linkedreportId))
-        ReportVersioning(action = "REMOVED_REPORT", reportModel = reportModel, user=response.user)
-    return HttpResponse('')
+    reportModel = Reports.objects.get(id=id)
+    return HTMXDeleteViews(
+        response,
+        reportModel,
+        reportModel.linkedReports,
+        Reports,
+        linkedreportId,
+        "REMOVED_REPORT")
 
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedSOP(TemplateView):
@@ -359,22 +382,27 @@ class CreateLinkedSOP(TemplateView):
 
 @login_required
 def SpecificLinkedSOP(response, id, linkedsopId):
-    if response.method == 'GET':
-        reportModel = Reports.objects.get(id=id)
-        linkedSOP = reportModel.linkedSOPs.get(id=linkedsopId)
-        return render(response, 'linkedsop_detail.html', {
-            'reportInfo':reportModel,
-            'linkedSOP':linkedSOP})
-    else:
-        return HttpResponse('')
+    reportModel = Reports.objects.get(id=id)
+    return HTMXGetSpecificViews(
+        response,
+        reportModel,
+        linkedsopId,
+        'linkedsop_detail.html',
+        reportModel.linkedSOPs,
+        'linkedSOP'
+    )
 
 @login_required
 def DeleteLinkedSOP(response, id, linkedsopId):
-    if response.method == 'POST':
-        reportModel = Reports.objects.get(id=id)
-        reportModel.linkedSOPs.remove(SOP.objects.get(id=linkedsopId))
-        ReportVersioning(action = "REMOVED_SOP", reportModel = reportModel, user=response.user)
-    return HttpResponse('')
+
+    reportModel = Reports.objects.get(id=id)
+    return HTMXDeleteViews(
+        response,
+        reportModel,
+        reportModel.linkedSOPs,
+        SOP,
+        linkedsopId,
+        "REMOVED_SOP")
 
 @method_decorator(login_required, name='dispatch')
 class CreateAttachment(TemplateView):
@@ -400,22 +428,26 @@ class CreateAttachment(TemplateView):
 
 @login_required
 def SpecificAttachment(response, id, attachmentId):
-    if response.method == 'GET':
-        reportModel = Reports.objects.get(id=id)
-        linkedAttachment = reportModel.linkedAttachment.get(id=attachmentId)
-        return render(response, 'attachedFiles_detail.html', {
-            'reportInfo':reportModel,
-            'linkedAttachment':linkedAttachment})
-    else:
-        return HttpResponse('')
+    reportModel = Reports.objects.get(id=id)
+    return HTMXGetSpecificViews(
+        response,
+        reportModel,
+        attachmentId,
+        'attachedFiles_detail.html',
+        reportModel.linkedAttachment,
+        'linkedAttachment'
+    )
 
 @login_required
 def DeleteAttachment(response, id, attachmentId):
-    if response.method == 'POST':
-        reportModel = Reports.objects.get(id=id)
-        reportModel.linkedAttachment.remove(ReportsAttachments.objects.get(id=attachmentId))
-        ReportVersioning(action = "REMOVED_ATTACHMENT", reportModel = reportModel, user=response.user)
-    return HttpResponse('')
+    reportModel = Reports.objects.get(id=id)
+    return HTMXDeleteViews(
+        response,
+        reportModel,
+        reportModel.linkedAttachment,
+        ReportsAttachments,
+        attachmentId,
+        "REMOVED_ATTACHMENT")
 
 @method_decorator(login_required, name='dispatch')
 class CreateTag(TemplateView):
@@ -441,7 +473,7 @@ class CreateTag(TemplateView):
                 tagModel = Tags(name = response.POST.get('newTag').lower())
                 tagModel.save()
 
-            reportInfo.reportTags.create(tagModel)
+            reportInfo.reportTags.add(tagModel)
             ReportVersioning(action = "ADDED_TAG", reportModel = reportInfo, user=response.user)
             return redirect('specificTag',reportInfo.id, tagModel.id)
         
@@ -459,23 +491,26 @@ class CreateTag(TemplateView):
 
 @login_required
 def SpecificTag(response, reportId, tagId):
-    if response.method == 'GET':
-        reportModel = Reports.objects.get(id=reportId)
-        tagModel = Tags.objects.get(id=tagId)
-        return render(response, 'tag_detail.html', {
-            'reportInfo':reportModel,
-            'tag': tagModel})
-    else:
-        return HttpResponse('')
+    reportModel = Reports.objects.get(id=reportId)
+    return HTMXGetSpecificViews(
+        response,
+        reportModel,
+        tagId,
+        'tag_detail.html',
+        reportModel.reportTags,
+        'tag'
+    )
 
 @login_required
 def DeleteTagFromReport(response, reportId, tagId):
-    if response.method == 'POST':
-        reportModel = Reports.objects.get(id=reportId)
-        tagModel = Tags.objects.get(id=tagId)
-        reportModel.reportTags.remove(tagModel)
-        ReportVersioning(action = "REMOVED_TAG", reportModel = reportModel, user=response.user)
-    return HttpResponse('')
+    reportModel = Reports.objects.get(id=reportId)
+    return HTMXDeleteViews(
+        response,
+        reportModel,
+        reportModel.reportTags,
+        Tags,
+        tagId,
+        "REMOVED_TAG")
 
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedSample(TemplateView):
@@ -498,22 +533,26 @@ class CreateLinkedSample(TemplateView):
 
 @login_required
 def SpecificLinkedSample(response, id, sampleId):
-    if response.method == 'GET':
-        reportModel = Reports.objects.get(id=id)
-        reportLinkedSampleModel = reportModel.linkedSamples.get(id=sampleId)
-        return render(response, 'linkedsamples_detail.html', {
-            'reportInfo':reportModel,
-            'linkedSample':reportLinkedSampleModel})
-    else:
-        return HttpResponse('')
+    reportModel = Reports.objects.get(id=id)
+    return HTMXGetSpecificViews(
+        response,
+        reportModel,
+        sampleId,
+        'linkedsamples_detail.html',
+        reportModel.linkedSamples,
+        'linkedSample'
+    )
 
 @login_required
 def DeleteLinkedSample(response, id, sampleId):
-    if response.method == 'POST':
-        reportModel = Reports.objects.get(id=id)
-        reportModel.linkedSamples.remove(Sample.objects.get(id=sampleId))
-        ReportVersioning(action = "REMOVED_SAMPLE", reportModel = reportModel, user=response.user)
-    return HttpResponse('')
+    reportModel = Reports.objects.get(id=id)
+    return HTMXDeleteViews(
+        response,
+        reportModel,
+        reportModel.linkedSamples,
+        Sample,
+        sampleId,
+        "REMOVED_SAMPLE")
 
 @method_decorator(login_required, name='dispatch')
 class CreateEquipment(TemplateView):
@@ -536,22 +575,26 @@ class CreateEquipment(TemplateView):
 
 @login_required
 def SpecificLinkedEquipment(response, id, equipmentId):
-    if response.method == 'GET':
-        reportModel = Reports.objects.get(id=id)
-        reportEquipmentModel = reportModel.linkedEquipments.get(id=equipmentId)
-        return render(response, 'linkedequipment_detail.html', {
-            'reportInfo':reportModel,
-            'linkedEquipment':reportEquipmentModel})
-    else:
-        return HttpResponse('')
+    reportModel = Reports.objects.get(id=id)
+    return HTMXGetSpecificViews(
+        response,
+        reportModel,
+        equipmentId,
+        'linkedequipment_detail.html',
+        reportModel.linkedEquipments,
+        'linkedEquipment'
+    )
 
 @login_required
 def DeleteLinkedEquipment(response, id, equipmentId):
-    if response.method == 'POST':
-        reportModel = Reports.objects.get(id=id)
-        reportModel.linkedEquipments.remove(Equipment.objects.get(id=equipmentId))
-        ReportVersioning(action = "REMOVED_EQUIPMENT", reportModel = reportModel, user=response.user)
-    return HttpResponse('')
+    reportModel = Reports.objects.get(id=id)
+    return HTMXDeleteViews(
+        response,
+        reportModel,
+        reportModel.linkedEquipments,
+        Equipment,
+        equipmentId,
+        "REMOVED_EQUIPMENT")
 
 @method_decorator(login_required, name='dispatch')
 class CreateReportEditor(TemplateView):
@@ -574,22 +617,26 @@ class CreateReportEditor(TemplateView):
 
 @login_required       
 def SpecificReportEditor(response, reportId, userId):
-    if response.method == 'GET':
-        reportModel = Reports.objects.get(id=reportId)
-        editorModel= reportModel.canEditUsers.get(id=userId)
-        return render(response, 'reporteditor_detail.html', {
-            'reportInfo':reportModel,
-            'editor': editorModel})
-    else:
-        return HttpResponse('')
+    reportModel = Reports.objects.get(id=reportId)
+    return HTMXGetSpecificViews(
+        response,
+        reportModel,
+        userId,
+        'reporteditor_detail.html',
+        reportModel.canEditUsers,
+        'editor'
+    )
 
 @login_required
 def DeleteReportEditor(response, reportId, userId):
-    if response.method == 'POST':
-        reportModel = Reports.objects.get(id=reportId)
-        reportModel.canEditUsers.remove(User.objects.get(id=userId))
-        ReportVersioning(action = "REMOVED_EDITOR", reportModel = reportModel, user=response.user)
-    return HttpResponse('')
+    reportModel = Reports.objects.get(id=reportId)
+    return HTMXDeleteViews(
+        response,
+        reportModel,
+        reportModel.canEditUsers,
+        User,
+        userId,
+        "REMOVED_EDITOR")
 
 @method_decorator(login_required, name='dispatch')
 class CreateReportReviewer(TemplateView):
@@ -624,14 +671,15 @@ class CreateReportReviewer(TemplateView):
 
 @login_required
 def SpecificReportReviewer(response, reportId, userId):
-    if response.method == 'GET':
-        reportModel = Reports.objects.get(id=reportId)
-        reviewerModel= reportModel.reportReviewers.get(id=userId)
-        return render(response, 'reportreviewer_detail.html', {
-            'reportInfo':reportModel,
-            'reviewer': reviewerModel})
-    else:
-        return HttpResponse('')
+    reportModel = Reports.objects.get(id=reportId)
+    return HTMXGetSpecificViews(
+        response,
+        reportModel,
+        userId,
+        'reportreviewer_detail.html',
+        reportModel.reportReviewers,
+        'reviewer'
+    )
 
 @login_required
 def DeleteReportReviewer(response, reportId, userId):
