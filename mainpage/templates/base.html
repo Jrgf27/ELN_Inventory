@@ -23,7 +23,8 @@
         <!--Main Navigation-->
         <header>
             <!-- Sidebar -->
-            <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+            <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" 
+            aria-labelledby="offcanvasWithBothOptionsLabel">
                 {% if user.is_authenticated %}
                     {% block sidebarButtons %}
 
@@ -74,7 +75,7 @@
                                 <ul class="dropdown-menu">
                                     {% for project in projects %}
 
-                                        <li><a class="dropdown-item" href="{% url 'ReportList' project.name %}">{{project.name}}</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'reportList' project.name %}">{{project.name}}</a></li>
 
                                     {% endfor %}
                                     <li id="projectListing"></li>
