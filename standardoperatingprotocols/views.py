@@ -182,7 +182,7 @@ class CreateAttachment(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        return HTMXGetViews(context,AttachFilesToSOP())
+        return HTMXGetViews(context,AttachFilesToSOP(), 'create-attachment-form_SOP')
     
     def post(self, response, id):
         SOPModel = SOP.objects.get(id=id)
@@ -228,11 +228,11 @@ def DeleteAttachment(response, id, attachmentId):
 
 @method_decorator(login_required, name='dispatch')
 class CreateSOPTrainer(TemplateView):
-    template_name = 'SOPtrainer_form.html'
+    template_name = 'SOPhtmx_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data( **kwargs)
-        return HTMXGetViews(context,TrainerForm())
+        return HTMXGetViews(context,TrainerForm(),'create-SOPTrainer-form')
 
     def post(self,response,id):
         SOPModel = SOP.objects.get(id=id)
@@ -277,11 +277,11 @@ def DeleteSOPTrainer(response, SOPId, userId):
 
 @method_decorator(login_required, name='dispatch')
 class CreateSOPTrainee(TemplateView):
-    template_name = 'SOPtrainee_form.html'
+    template_name = 'SOPhtmx_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data( **kwargs)
-        return HTMXGetViews(context,TraineeForm())
+        return HTMXGetViews(context,TraineeForm(), 'create-SOPTrainee-form')
 
     def post(self, response, id):
         SOPModel = SOP.objects.get(id=id)

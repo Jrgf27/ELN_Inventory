@@ -241,10 +241,10 @@ class EditReport(TemplateView):
 
 @method_decorator(login_required, name='dispatch')
 class CreateReagents(TemplateView):
-    template_name='reagents_form.html'
+    template_name='reporthtmx_form.html'
     def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
-        return HTMXGetViews(context,AttachReagentsToReport())
+        return HTMXGetViews(context,AttachReagentsToReport(),'create-reagents-form')
     
     def post(self,response,id):
         reportInfo = Reports.objects.get(id=id)
@@ -286,10 +286,10 @@ def DeleteReagent(response, id, stockId):
 
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedReport(TemplateView):
-    template_name='linkedreport_form.html'
+    template_name='reporthtmx_form.html'
     def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
-        return HTMXGetViews(context,AttachReportsToReport())
+        return HTMXGetViews(context,AttachReportsToReport(), 'create-linkedreports-form')
 
     def post(self, response, id):
         reportInfo = Reports.objects.get(id=id)
@@ -331,10 +331,10 @@ def DeleteLinkedReport(response, id, linkedreportId):
 
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedSOP(TemplateView):
-    template_name = 'linkedsop_form.html'
+    template_name = 'reporthtmx_form.html'
     def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
-        return HTMXGetViews(context,AttachSOPToReport())
+        return HTMXGetViews(context,AttachSOPToReport(),'create-linkedsops-form')
     
     def post(self, response, id):
         reportInfo = Reports.objects.get(id=id)
@@ -380,7 +380,7 @@ class CreateAttachment(TemplateView):
     template_name='attachedFiles_form.html'
     def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
-        return HTMXGetViews(context,AttachFilesToReport())
+        return HTMXGetViews(context,AttachFilesToReport(), 'create-attachment-form')
     
     def post(self, response, id):
         reportInfo = Reports.objects.get(id=id)
@@ -489,10 +489,10 @@ def DeleteTagFromReport(response, reportId, tagId):
 
 @method_decorator(login_required, name='dispatch')
 class CreateLinkedSample(TemplateView):
-    template_name = 'linkedsamples_form.html'
+    template_name = 'reporthtmx_form.html'
     def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
-        return HTMXGetViews(context,AttachSamplesToReport())
+        return HTMXGetViews(context,AttachSamplesToReport(), 'create-linkedSamples-form')
     
     def post(self, response, id):
         reportInfo = Reports.objects.get(id=id)
@@ -534,10 +534,10 @@ def DeleteLinkedSample(response, id, sampleId):
 
 @method_decorator(login_required, name='dispatch')
 class CreateEquipment(TemplateView):
-    template_name = 'linkedequipment_form.html'
+    template_name = 'reporthtmx_form.html'
     def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
-        return HTMXGetViews(context,AttachEquipmentToReport())
+        return HTMXGetViews(context,AttachEquipmentToReport(), 'create-linkedEquipment-form')
 
     def post(self, response, id):
         reportInfo = Reports.objects.get(id=id)
@@ -579,10 +579,10 @@ def DeleteLinkedEquipment(response, id, equipmentId):
 
 @method_decorator(login_required, name='dispatch')
 class CreateReportEditor(TemplateView):
-    template_name = 'reporteditor_form.html'
+    template_name = 'reporthtmx_form.html'
     def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
-        return HTMXGetViews(context,AllowEditForm(userId = self.request.user.id))
+        return HTMXGetViews(context,AllowEditForm(userId = self.request.user.id), 'create-reporteditor-form')
     
     def post(self, response, id):
         reportInfo = Reports.objects.get(id=id)
@@ -624,10 +624,10 @@ def DeleteReportEditor(response, reportId, userId):
 
 @method_decorator(login_required, name='dispatch')
 class CreateReportReviewer(TemplateView):
-    template_name = 'reportreviewer_form.html'
+    template_name = 'reporthtmx_form.html'
     def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
-        return HTMXGetViews(context,ReviewerForm(userId = self.request.user.id))
+        return HTMXGetViews(context,ReviewerForm(userId = self.request.user.id), 'create-reportreviewer-form')
     
     def post(self, response, id):
         reportInfo = Reports.objects.get(id=id)
@@ -635,9 +635,7 @@ class CreateReportReviewer(TemplateView):
         if response.POST.get('newReviewer'):
             newReviewer = User.objects.get(id=response.POST.get('newReviewer'))
             if newReviewer in reportInfo.reportReviewers.all():
-                form = ReviewerForm(userId = response.user.id)
-                return render(response, 'reportreviewer_form.html', {'form':form,
-                                                                    'reportId':id})
+                return redirect('create-reportreviewer-form', id)
 
             reviewerModel = ReportReviewers(
                 reviewer = newReviewer,
@@ -649,9 +647,7 @@ class CreateReportReviewer(TemplateView):
             return redirect('specificReportReviewer',reportInfo.id, reviewerModel.id)
         
         if response.POST.get('newReviewer')=="":
-            form = ReviewerForm(userId = response.user.id)
-            return render(response, 'reportreviewer_form.html', {'form':form,
-                                                                'reportId':id})
+            return redirect('create-reportreviewer-form', id)
 
 @login_required
 def SpecificReportReviewer(response, reportId, userId):

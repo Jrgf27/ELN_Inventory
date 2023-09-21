@@ -166,7 +166,6 @@ def DeleteStockHTMX(response, id):
     StockVersioning(action = "DELETED", stockModel = stockModel, user=response.user)
     return HttpResponse('')
 
-
 def EditStockHTMX(response, id):
 
     stockModel = Stock.objects.get(id=id)
