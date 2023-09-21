@@ -2,10 +2,11 @@ from django.shortcuts import render, redirect
 from django.http.response import HttpResponse
 
 
-def HTMXGetViews(context, form):
+def HTMXGetViews(context, form,formLink):
     return {
         'form':form,
-        'documentId':context['id']
+        'documentId':context['id'],
+        'formLink':formLink
         }
 
 def HTMXGetSpecificViews(response, reportModel,modelId,detailView,linkedModelManager, htmlModelName, htmlDocumentName):
@@ -13,7 +14,7 @@ def HTMXGetSpecificViews(response, reportModel,modelId,detailView,linkedModelMan
         reportReagentsModel = linkedModelManager.get(id=modelId)
         return render(response, detailView, {
             htmlDocumentName:reportModel,
-            htmlModelName:reportReagentsModel})
+            htmlModelName:reportReagentsModel,})
     else:
         return HttpResponse('')
 
