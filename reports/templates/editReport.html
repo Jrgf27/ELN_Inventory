@@ -207,7 +207,8 @@
     </div>
     <br>
     <button type="submit" name="save" value="True" class="btn btn-success">Save</button>
-    <button type="submit" name="exit" value="True" class="btn btn-danger">Exit</button>
+    <a href="{% url 'reportList' selectedProject %}" class="btn btn-danger">Exit</a>
 </form>
+    
 
 {% endblock %}
