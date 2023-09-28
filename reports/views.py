@@ -221,24 +221,17 @@ class EditReport(TemplateView):
     
     def post(self, response, projectname, id):
         reportInfo = Reports.objects.get(id=id)
-        if response.POST.get('exit'):
+        form = CreateNewReport(response.POST, response.FILES)
+        if form.is_valid():
+            reportTitle = form.cleaned_data['title']
+            reportBody = form.cleaned_data['reportBody']
+            reportModel = Reports.objects.get(id=id)
+            reportModel.title = reportTitle
+            reportModel.reportBody = reportBody
+            reportModel.save()
+            ReportVersioning(action = 'EDITED', reportModel = reportModel, user=response.user)
             return redirect('specificReport', projectname=projectname, id=reportInfo.id)
-        
-        if response.POST.get('save'):
-
-            form = CreateNewReport(response.POST, response.FILES)
-
-            if form.is_valid():
-                reportTitle = form.cleaned_data['title']
-                reportBody = form.cleaned_data['reportBody']
-                reportModel = Reports.objects.get(id=id)
-                reportModel.title = reportTitle
-                reportModel.reportBody = reportBody
-                
-                reportModel.save()
-                ReportVersioning(action = 'EDITED', reportModel = reportModel, user=response.user)
-                return redirect('specificReport', projectname=projectname, id=reportInfo.id)
-
+    
 @method_decorator(login_required, name='dispatch')
 class CreateReagents(TemplateView):
     template_name='reporthtmx_form.html'
