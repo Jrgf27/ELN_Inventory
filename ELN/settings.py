@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-z5f*s-+c@y5xu@w$f0u!@5hvqo%@qlbh450*0okf!n_z6e1#2%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['experimentaleln.duckdns.org','192.168.0.18' , '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['experimentaleln.duckdns.org','127.0.0.1', 'localhost']
 CSRF_TRUSTED_ORIGINS = [
     'https://experimentaleln.duckdns.org'
 ]
