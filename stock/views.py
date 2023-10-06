@@ -67,7 +67,7 @@ def SpecificStock(response,id):
 def CreateStock(response):
     
     if response.method == "POST":
-
+        
         form = CreateNewItemStock(response.POST, parentItem=0)
 
         if form.is_valid():

@@ -1,10 +1,8 @@
+# pylint: disable=relative-beyond-top-level
+"""Adding modules from item category to admin page"""
+
 from django.contrib import admin
+from .models import ItemCategory, ItemCategory_Versions
 
-from .models import *
 # Register your models here.
-
-@admin.register(ItemCategory,
-                ItemCategory_Versions)
-
-class ItemCategoryAdmin(admin.ModelAdmin):
-    pass
+admin.site.register(ItemCategory,ItemCategory_Versions)
