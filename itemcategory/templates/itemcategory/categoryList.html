@@ -1,4 +1,4 @@
-{% extends 'baseCategory.html' %}
+{% extends 'itemcategory/baseCategory.html' %}
 
 {% load crispy_forms_tags %}
 
@@ -51,7 +51,7 @@
     <table class="table">
         <tbody>
         {% for category in page_obj %}
-            {% include 'category_details.html'  %}
+            {% include 'itemcategory/partials/category_details.html'  %}
         {% endfor %}
         <tr id="categoryListing"></tr>
         </tbody>
