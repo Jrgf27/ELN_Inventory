@@ -4,7 +4,7 @@
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, Http404
 
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -30,15 +30,14 @@ class ListCategory(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        category_list_objects = get_list_or_404(ItemCategory, isEnabled=True)
-        category_form=CreateNewCategory()
-
+        category_list_objects = ItemCategory.objects.filter(isEnabled=True)
         paginator = Paginator(category_list_objects,20)
+
         page_number = self.request.GET.get("page")
         page_obj = paginator.get_page(page_number)
-
-        projects=get_list_or_404(Projects, isEnabled=True)
+        projects=Projects.objects.filter(isEnabled=True)
         project_form = CreateNewProject()
+        category_form=CreateNewCategory()
 
         context = {
             'page_obj':page_obj,
@@ -61,7 +60,7 @@ class DetailCategory(TemplateView):
         if not category_model.isEnabled:
             return redirect('CategoryList')
 
-        projects=get_list_or_404(Projects, isEnabled=True)
+        projects=Projects.objects.filter(isEnabled=True)
         projectform = CreateNewProject()
         context = {
             'categoryInfo':category_model,
@@ -97,7 +96,7 @@ class CreateCategory(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        projects=get_list_or_404(Projects, isEnabled=True)
+        projects=Projects.objects.filter(isEnabled=True)
         projectform = CreateNewProject()
         form = CreateNewCategory()
         context = {
@@ -140,7 +139,7 @@ class EditCategory(TemplateView):
         if not category_model.isEnabled:
             return redirect('CategoryList')
 
-        projects=get_list_or_404(Projects, isEnabled=True)
+        projects=Projects.objects.filter(isEnabled=True)
         projectform = CreateNewProject()
         form = CreateNewCategory(initial={
             'name' : category_model.name,
