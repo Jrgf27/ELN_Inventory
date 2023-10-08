@@ -103,7 +103,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -159,7 +158,8 @@ CKEDITOR_CONFIGS = {
         'toolbar': None,
         'height': 1000,
         'mathJaxClass': 'mathjax-latex',
-        'mathJaxLib': 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_SVG',
+        'mathJaxLib': 
+        'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_SVG',
 
         'extraPlugins': ','.join([
             # your extra plugins here
