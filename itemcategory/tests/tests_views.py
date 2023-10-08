@@ -113,6 +113,7 @@ class ItemCategoryUrlsTest(TestCase):
             description = 'description1'
         )
         category.save()
+        self.assertTrue(category.isEnabled)
 
         response = self.client.post(path)
         self.assertRedirects(
