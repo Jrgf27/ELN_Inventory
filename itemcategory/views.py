@@ -3,11 +3,10 @@
 """Views and logic required for Item Category Application"""
 
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
-from django.http.response import HttpResponse, Http404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http.response import HttpResponse
 
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.views.generic import TemplateView
 
@@ -21,8 +20,7 @@ from .utils import item_category_versioning
 
 # Create your views here.
 
-@method_decorator(login_required, name='dispatch')
-class ListCategory(TemplateView):
+class ListCategory(LoginRequiredMixin, TemplateView):
     """List view class for Item Category;
     returns all enabled categories in the database;
     only has GET method"""
@@ -30,7 +28,7 @@ class ListCategory(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        category_list_objects = ItemCategory.objects.filter(isEnabled=True)
+        category_list_objects = ItemCategory.objects.filter(isEnabled=True).order_by('name')
         paginator = Paginator(category_list_objects,20)
 
         page_number = self.request.GET.get("page")
@@ -46,20 +44,24 @@ class ListCategory(TemplateView):
             'projectform' : project_form}
         return context
 
-@method_decorator(login_required, name='dispatch')
-class DetailCategory(TemplateView):
+class DetailCategory(LoginRequiredMixin,TemplateView):
     """Detail view of item category, returns 
     category based on provided id in url path;
     has GET and POST methods"""
     template_name = 'itemcategory/specificCategory.html'
 
+    def get(self, request, *args, **kwargs):
+        category_id = kwargs.get('category_id')
+        context = self.get_context_data(category_id=category_id)
+        if context:
+            return render(request, self.template_name, context)
+        return redirect('CategoryList')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         category_model = get_object_or_404(ItemCategory, id=context['category_id'])
-
         if not category_model.isEnabled:
-            return redirect('CategoryList')
-
+            return None
         projects=Projects.objects.filter(isEnabled=True)
         projectform = CreateNewProject()
         context = {
@@ -88,8 +90,7 @@ class DetailCategory(TemplateView):
 
         return redirect('CategoryList')
 
-@method_decorator(login_required, name='dispatch')
-class CreateCategory(TemplateView):
+class CreateCategory(LoginRequiredMixin,TemplateView):
     """Form page for category creation, 
     provides form class and saves the model if inputs are valid"""
     template_name = 'itemcategory/createCategory.html'
@@ -127,17 +128,23 @@ class CreateCategory(TemplateView):
 
         return redirect('createCategory')
 
-@method_decorator(login_required, name='dispatch')
-class EditCategory(TemplateView):
+class EditCategory(LoginRequiredMixin,TemplateView):
     """View logic for category editing url"""
     template_name = 'itemcategory/editCategory.html'
+
+    def get(self, request, *args, **kwargs):
+        category_id = kwargs.get('category_id')
+        context = self.get_context_data(category_id=category_id)
+        if context:
+            return render(request, self.template_name, context)
+        return redirect('CategoryList')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         category_model = get_object_or_404(ItemCategory, id=context['category_id'])
 
         if not category_model.isEnabled:
-            return redirect('CategoryList')
+            return None
 
         projects=Projects.objects.filter(isEnabled=True)
         projectform = CreateNewProject()
@@ -173,8 +180,7 @@ class EditCategory(TemplateView):
 
         return HttpResponseRedirect("/category")
 
-@method_decorator(login_required, name='dispatch')
-class CreateCategoryHTMX(TemplateView):
+class CreateCategoryHTMX(LoginRequiredMixin,TemplateView):
     """Logic for category creation thought HTMX"""
 
     def post(self, response):
@@ -193,8 +199,7 @@ class CreateCategoryHTMX(TemplateView):
             return render(response, 'itemcategory/partials/category_details.html', context)
         return HttpResponse('')
 
-@method_decorator(login_required, name='dispatch')
-class DeleteCategoryHTMX(TemplateView):
+class DeleteCategoryHTMX(LoginRequiredMixin,TemplateView):
     """Logic for category deletion thought HTMX"""
 
     def post(self, response, category_id):
