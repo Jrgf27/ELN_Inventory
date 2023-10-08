@@ -13,6 +13,17 @@ from ..utils import item_category_versioning
 class ItemCategoryTests(TestCase):
     """Class for testing of item category model"""
 
+    @classmethod
+    def tearDownClass(cls):
+        # This method is called once at the end of the test case
+        ItemCategory.objects.all().delete()
+        ItemCategoryVersions.objects.all().delete()
+
+    def setUp(self):
+        # This method is called once at the end of the test case
+        ItemCategory.objects.all().delete()
+        ItemCategoryVersions.objects.all().delete()
+
     def test_itemcategory_creation_good(self):
         """Testing for creation of item categories with correct inputs"""
 
