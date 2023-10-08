@@ -1,0 +1,4 @@
+pycache/
+.vscode/
+dockerfile
+venv/
