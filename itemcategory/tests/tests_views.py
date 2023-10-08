@@ -41,13 +41,23 @@ class ItemCategoryUrlsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'itemcategory/categoryList.html')
 
-    def test_category_detail_not_authenticated_get(self):
+    def test_category_detail_not_authenticated(self):
         """Testing detail category url paths without authentication"""
         path = reverse('specificCategory', kwargs= {'category_id': 1})
         login_redirection = '/login/?next=' + path
-        request1 = self.client.get(path)
+
+        request = self.client.get(path)
         self.assertRedirects(
-            request1,
+            request,
+            login_redirection,
+            status_code=302,
+            target_status_code=200,
+            msg_prefix='',
+            fetch_redirect_response=True)
+
+        request = self.client.post(path)
+        self.assertRedirects(
+            request,
             login_redirection,
             status_code=302,
             target_status_code=200,
