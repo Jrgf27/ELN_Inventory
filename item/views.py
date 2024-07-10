@@ -126,8 +126,7 @@ class EditItem(LoginRequiredMixin, TemplateView):
                                itemModel=itemModel, user=response.user)
 
                 return redirect("ItemList")
-
-        
+      
 class ItemHTMX(LoginRequiredMixin, TemplateView):
     def post(self, response):
         form = CreateNewItem(response.POST)
