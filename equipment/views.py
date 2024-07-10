@@ -1,8 +1,6 @@
-from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.http.response import HttpResponse
 
-from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
 from django.views.generic import TemplateView
@@ -53,7 +51,6 @@ class SpecificEquipment(LoginRequiredMixin, TemplateView):
         equipmentModel.save()
         return redirect("EquipmentList")
 
-
 class EditEquipment(LoginRequiredMixin, TemplateView):
 
     def get(self, response, id):
@@ -88,7 +85,6 @@ class EditEquipment(LoginRequiredMixin, TemplateView):
                 equipment_versioning(action = "EDITED", equipmentModel = equipmentModel, user=response.user)
 
                 return redirect( "specificEquipment", id )    
-       
 
 class EquipmentHTMX(LoginRequiredMixin, TemplateView):
     def post(self, response):

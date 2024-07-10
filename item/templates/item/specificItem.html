@@ -1,13 +1,14 @@
-{% extends 'baseItem.html' %}
+{% extends 'base.html' %}
+
 
 {% load crispy_forms_tags %}
 
 {% block content %}
 <form method="post">
     {% csrf_token %}
-    <button  type="submit" name="delete_item" value="True" class="btn btn-success">Delete</button>
-    <button  type="submit" name="edit_item" value="True" class="btn btn-success">Edit</button>
+    <button  type="submit" class="btn btn-success">Delete</button>
 </form>
+<a  type="btn" href="{% url 'editItem' itemInfo.id %}"class="btn btn-success">Edit</a>
 
 <br>
 

@@ -24,7 +24,7 @@
         <a class="btn btn-primary btn-sm" href="{% url 'editItem' item.id %}">
             Edit
         </a>
-        <a class="btn btn-danger btn-sm" hx-post="{% url 'deleteItemHTMX' item.id %}">
+        <a class="btn btn-danger btn-sm" hx-delete="{% url 'deleteItemHTMX' item.id %}">
             Delete
         </a>
     </td>
