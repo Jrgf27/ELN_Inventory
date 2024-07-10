@@ -1,4 +1,4 @@
-{% extends 'baseEquipment.html' %}
+{% extends 'base.html' %}
 
 {% load crispy_forms_tags %}
 
@@ -52,7 +52,7 @@
     <table class="table">
         <tbody>
         {% for equipment in page_obj %}
-            {% include 'equipment_details.html'  %}
+            {% include 'equipment/partials/equipment_details.html'  %}
         {% endfor %}
         <tr id="equipmentListing"></tr>
         </tbody>

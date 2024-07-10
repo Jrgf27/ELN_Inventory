@@ -1,4 +1,5 @@
-from typing import Any
+# pylint: disable=relative-beyond-top-level
+
 from django.shortcuts import render, redirect
 from django.http.response import HttpResponse
 from django.utils import timezone
@@ -8,11 +9,13 @@ from django.core.signing import TimestampSigner
 from django.core.paginator import Paginator
 from django.views.generic import TemplateView
 
-from .forms import *
-from .models import *
 from stock.models import Stock
 from projects.models import Projects
 from projects.forms import CreateNewProject
+
+from .forms import *
+from .models import *
+
 
 from htmxspecific.views import *
 
@@ -374,7 +377,7 @@ class CreateAttachment(TemplateView):
     def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         return HTMXGetViews(context,AttachFilesToReport(), 'create-attachment-form')
-    
+
     def post(self, response, id):
         reportInfo = Reports.objects.get(id=id)
         if response.FILES.get('attachedFile'):

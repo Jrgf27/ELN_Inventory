@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<h1>Equipment: {{equipmentModel.name}}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <button  type="submit" class="btn btn-success">Delete</button>
+</form>
+<a  type="btn" href="{% url 'editEquipment' equipmentModel.id %}"class="btn btn-success">Edit</a>
+
+{% endblock %}

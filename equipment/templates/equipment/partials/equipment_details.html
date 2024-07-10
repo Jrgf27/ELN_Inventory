@@ -17,7 +17,7 @@
         <a class="btn btn-primary btn-sm" href="{% url 'editEquipment' equipment.id %}">
             Edit
         </a>
-        <a class="btn btn-danger btn-sm" hx-post="{% url 'deleteEquipmentHTMX' equipment.id %}">
+        <a class="btn btn-danger btn-sm" hx-delete="{% url 'deleteEquipmentHTMX' equipment.id %}">
             Delete
         </a>
     </td>
