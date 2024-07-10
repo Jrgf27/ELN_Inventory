@@ -9,8 +9,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.views.generic import TemplateView
 
-from projects.models import Projects
-from projects.forms import CreateNewProject
 
 from .models import ItemCategory
 from .forms import CreateNewCategory
@@ -34,15 +32,11 @@ class ListCategory(LoginRequiredMixin, TemplateView):
 
         page_number = self.request.GET.get("page")
         page_obj = paginator.get_page(page_number)
-        projects = Projects.objects.filter(isEnabled=True)
-        project_form = CreateNewProject()
         category_form = CreateNewCategory()
 
         context = {
             'page_obj': page_obj,
-            'form': category_form,
-            'projects': projects,
-            'projectform': project_form}
+            'form': category_form}
         return context
 
 
@@ -55,13 +49,9 @@ class DetailCategory(LoginRequiredMixin, TemplateView):
     def get(self, request, category_id):
         category_model = get_object_or_404(
             ItemCategory, id=category_id)
-        projects = Projects.objects.filter(isEnabled=True)
-        projectform = CreateNewProject()
         context = {
             'categoryInfo': category_model,
-            'id': category_id,
-            'projects': projects,
-            'projectform': projectform}
+            'id': category_id}
         return render(request, self.template_name, context)
 
     def post(self, response, category_id):
@@ -92,16 +82,12 @@ class EditCategory(LoginRequiredMixin, TemplateView):
         category_model = get_object_or_404(
             ItemCategory, id=context['category_id'])
 
-        projects = Projects.objects.filter(isEnabled=True)
-        projectform = CreateNewProject()
         form = CreateNewCategory(initial={
             'name': category_model.name,
             'description': category_model.description
         })
         context = {
-            'form': form,
-            'projects': projects,
-            'projectform': projectform
+            'form': form
         }
         return render(request, self.template_name, context)
 
